@@ -1,0 +1,895 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>溝通小勇士</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* Layout: 平板單頁 app — 首頁單元卡 → 動畫舞台(16:10)＋旁白／對話列 → 遊戲卡 → 自評；刻意採明亮教室單一配色；國字右側直排注音 */
+:root{
+  --sky:#E4F1F6; --paper:#FFFFFF; --ink:#22314A; --ink-soft:#5A6B84; --line:#C3D6E2;
+  --sun:#FFC845; --leaf:#2FA36B; --coral:#E8604F; --blue:#2F6FD0;
+  --t1:#BBD7FF; --t2:#FFE08A; --t3:#BDEBCB;
+  --wall:#D6EAD8; --floor:#E2B77E; --board:#2E5E4A; --wood:#9C6B3C;
+  --sky-out:#BFE3F5; --grass:#8FD18A; --wall-home:#F6DCCB; --floor-home:#B9C7D9;
+  --f-display:"LXGW WenKai TC","BiauKai","DFKai-SB","Kaiti TC",serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{background:var(--sky);color:var(--ink);font-family:var(--f-body);font-size:18px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 32px;
+  -webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:4px solid var(--blue);outline-offset:3px}
+button:disabled{opacity:.35;cursor:default}
+.wrap{max-width:1100px;margin-inline:auto;display:flex;flex-direction:column;gap:16px}
+
+/* 注音：國字右側直排，聲調在右 */
+.zc{display:inline-flex;align-items:center;white-space:nowrap}
+.zc .b{display:inline-flex;align-items:center;font-family:var(--f-body);font-weight:500;font-size:.42em;line-height:1;margin-left:.1em;margin-right:.08em}
+.zc .bs{writing-mode:vertical-rl;text-orientation:upright;letter-spacing:-.08em}
+.zc .bs i{font-style:normal}
+.zc .t{margin-left:.04em}
+body.nozy .zc .b{display:none}
+
+/* top bar */
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:700;font-size:1.7rem;margin-right:auto}
+.brand .mark{width:44px;height:44px;border-radius:50%;background:var(--sun);border:3px solid var(--ink);display:grid;place-items:center;font-size:1.3rem}
+.tbtn{min-height:52px;padding:0 16px;border-radius:999px;border:3px solid var(--ink);background:var(--paper);font-weight:700;display:inline-flex;align-items:center;gap:6px}
+.tbtn.off{background:#EEF2F5;color:var(--ink-soft)}
+
+/* home */
+.hello{display:flex;flex-direction:column;gap:4px}
+.hello h1{font-family:var(--f-display);font-size:clamp(1.6rem,3.4vw,2.4rem);margin:0;text-wrap:balance}
+.hello p{margin:0;color:var(--ink-soft);font-size:1.15rem}
+.units{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.ucard{position:relative;text-align:left;background:var(--paper);border:3px solid var(--ink);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:6px;min-height:210px;box-shadow:0 5px 0 var(--ink);transition:transform .12s, box-shadow .12s}
+.ucard:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.uicon{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;font-size:2rem;background:color-mix(in srgb,var(--tone) 22%,white);border:3px solid var(--tone)}
+.uweek{font-size:.85rem;font-weight:700;color:var(--ink-soft);letter-spacing:.06em}
+.utitle{font-family:var(--f-display);font-size:1.55rem;font-weight:700;line-height:1.3}
+.ugoal{font-size:1rem;color:var(--ink-soft);line-height:1.6}
+.ustate{margin-top:auto;display:flex;align-items:center;justify-content:space-between}
+.uself{font-size:1.6rem}
+.stars{letter-spacing:2px;font-size:1.35rem}
+.stars i{font-style:normal;color:#D5DEE6}
+.stars i.on{color:#F2B01E;-webkit-text-stroke:1px #B07A00}
+
+/* unit */
+.uhead{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.uhead .meta{margin-right:auto;min-width:0}
+.uhead h2{font-family:var(--f-display);font-size:clamp(1.5rem,3vw,2.1rem);margin:0;line-height:1.25}
+.uhead small{display:block;color:var(--ink-soft);font-weight:700;letter-spacing:.04em}
+.uhead p{margin:2px 0 0;color:var(--ink-soft);font-size:1.05rem}
+.stage-wrap{width:100%;max-width:calc(52vh * 1.6);margin-inline:auto;display:flex;flex-direction:column;gap:10px}
+.stage{position:relative;width:100%;aspect-ratio:16/10;border-radius:20px;overflow:hidden;border:3px solid var(--ink);container-type:inline-size;background:var(--wall)}
+.bg-class{background:linear-gradient(var(--wall) 0 72%,var(--floor) 72%)}
+.bg-play{background:linear-gradient(var(--sky-out) 0 62%,var(--grass) 62%)}
+.bg-home{background:linear-gradient(var(--wall-home) 0 70%,var(--floor-home) 70%)}
+.board{position:absolute;top:7%;left:32%;width:36%;height:30%;background:var(--board);border:1.2cqw solid var(--wood);border-radius:1cqw}
+.board::after{content:"";position:absolute;left:12%;right:30%;top:30%;height:.5cqw;background:rgba(255,255,255,.35);box-shadow:0 3cqw 0 rgba(255,255,255,.25)}
+.win{position:absolute;top:10%;left:5%;width:14%;height:24%;background:var(--sky-out);border:1cqw solid #fff;border-radius:1cqw;box-shadow:0 0 0 .4cqw var(--ink)}
+.sun{position:absolute;top:8%;right:8%;width:10cqw;height:10cqw;border-radius:50%;background:var(--sun);box-shadow:0 0 0 1.5cqw rgba(255,200,69,.35)}
+.tree{position:absolute;bottom:36%;left:44%;width:12cqw;height:12cqw;border-radius:50%;background:#5DB866;box-shadow:inset -1.5cqw -1.5cqw 0 #4AA455}
+.actor{position:absolute;bottom:2.5%;width:22%}
+.actor.L{left:13%}.actor.R{right:13%}
+.actor svg{display:block;width:100%;height:auto}
+.name{position:absolute;left:50%;bottom:2%;transform:translateX(-50%);background:var(--paper);border:.35cqw solid var(--ink);border-radius:999px;font-size:2.2cqw;font-weight:700;padding:.1em .8em;white-space:nowrap}
+.bubble{position:absolute;bottom:101%;background:var(--paper);border:.45cqw solid var(--ink);border-radius:2cqw;padding:1cqw 1.6cqw 1cqw 2cqw;font-family:var(--f-display);font-size:3.6cqw;font-weight:700;line-height:1.35;width:max-content;max-width:58cqw;z-index:3;animation:pop .35s ease-out;display:flex;align-items:center;gap:1cqw}
+.bubble .btxt{min-width:0}
+.L .bubble{left:-8%}.R .bubble{right:-8%}
+.bubble::after{content:"";position:absolute;top:100%;border:1.4cqw solid transparent;border-top-color:var(--ink)}
+.L .bubble::after{left:26%}.R .bubble::after{right:26%}
+.bubble.quiet{font-size:2.7cqw;font-weight:400;color:var(--ink-soft);border-style:dashed}
+.bsay{flex:none;width:5.2cqw;height:5.2cqw;min-width:30px;min-height:30px;border-radius:50%;border:.35cqw solid var(--ink);background:var(--t2);font-size:2.4cqw;display:grid;place-items:center;padding:0}
+.think{position:absolute;top:-4%;width:11cqw;height:11cqw;border-radius:50%;background:var(--paper);border:.4cqw solid var(--ink);display:grid;place-items:center;font-size:6cqw;z-index:2;animation:pop .4s ease-out}
+.L .think{left:84%}.R .think{right:84%}
+.prop{position:absolute;bottom:20%;font-size:7.5cqw;z-index:2}
+.L .prop{left:78%}.R .prop{right:78%}
+.hand{position:absolute;top:26%;font-size:6.5cqw;z-index:2;animation:wave .9s ease-in-out infinite alternate}
+.L .hand{left:80%}.R .hand{right:80%}
+.stamp{position:absolute;top:4%;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:1cqw;background:var(--paper);border:.5cqw solid;border-radius:999px;padding:.5cqw 2.4cqw .5cqw .6cqw;font-size:3.4cqw;font-weight:700;z-index:4;animation:stamp .45s ease-out;white-space:nowrap}
+.stamp b{width:6cqw;height:6cqw;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:4cqw}
+.stamp.good{border-color:var(--leaf);color:var(--leaf)}.stamp.good b{background:var(--leaf)}
+.stamp.bad{border-color:var(--coral);color:var(--coral)}.stamp.bad b{background:var(--coral)}
+.stage.talking .speaker .mouth{animation:talk .22s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center}
+.tiles{position:absolute;top:6%;left:50%;transform:translateX(-50%);display:flex;align-items:flex-start;gap:1.2cqw;z-index:4;animation:popc .4s ease-out}
+.tile{border:.45cqw solid var(--ink);border-radius:1.6cqw;padding:.8cqw 2cqw;font-family:var(--f-display);font-size:5cqw;font-weight:700;text-align:center;line-height:1.2}
+.tile small{display:block;font-family:var(--f-body);font-size:2.4cqw;font-weight:700;color:var(--ink-soft)}
+.plus{font-size:4cqw;font-weight:700;padding-top:1.4cqw;color:var(--paper);text-shadow:0 0 .6cqw var(--ink)}
+.c1{background:var(--t1)}.c2{background:var(--t2)}.c3{background:var(--t3)}
+.meter{position:absolute;top:5%;left:50%;transform:translateX(-50%);display:flex;align-items:flex-end;gap:1.2cqw;background:var(--paper);border:.45cqw solid var(--ink);border-radius:2cqw;padding:1.4cqw 2cqw;z-index:4;animation:popc .4s ease-out}
+.meter .bar{width:5cqw;border-radius:1cqw;display:flex;align-items:flex-end;justify-content:center;color:#fff;font-weight:700;font-size:2.6cqw;padding-bottom:.3cqw;transition:opacity .3s}
+.meter .bar.dim{opacity:.22}
+.meter .mlabel{font-family:var(--f-display);font-weight:700;font-size:3.6cqw;margin-left:1.2cqw;align-self:center;white-space:nowrap}
+.practice{position:absolute;inset:0;background:rgba(34,49,74,.55);display:grid;place-items:center;z-index:6;padding:3cqw}
+.pcard{background:var(--paper);border:3px solid var(--ink);border-radius:18px;padding:3cqw 4cqw;display:flex;flex-direction:column;align-items:center;gap:2cqw;text-align:center;max-width:94%;animation:pop .35s ease-out}
+.plabel{font-weight:700;color:var(--blue);font-size:clamp(1rem,2.6cqw,1.5rem)}
+.psent{font-family:var(--f-display);font-weight:700;font-size:clamp(1.4rem,5.4cqw,3rem);line-height:1.35}
+.pyay{font-size:clamp(2rem,7cqw,4rem);line-height:1}
+.prow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+
+/* 旁白與對話列 */
+.cap,.line{display:flex;align-items:center;gap:12px;background:var(--paper);border:3px solid var(--ink);border-radius:16px;padding:10px 12px}
+.line{border-color:var(--who,var(--ink));background:color-mix(in srgb,var(--who,#fff) 10%,white)}
+.cap p,.line p{margin:0;font-family:var(--f-display);font-size:clamp(1.3rem,2.6vw,1.85rem);font-weight:700;line-height:1.45;flex:1;min-width:0}
+.who{flex:none;min-width:64px;text-align:center;border-radius:999px;padding:4px 10px;font-weight:700;font-size:1.05rem;color:#fff;background:var(--who,var(--ink-soft))}
+.sayb{flex:none;width:58px;height:58px;border-radius:50%;border:3px solid var(--ink);background:var(--t1);font-size:1.5rem;display:grid;place-items:center;padding:0}
+.line .sayb{background:var(--t2)}
+.ctrl{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.btn{min-height:58px;padding:0 20px;border-radius:999px;border:3px solid var(--ink);background:var(--paper);font-weight:700;font-size:1.15rem;box-shadow:0 4px 0 var(--ink)}
+.btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.go{background:var(--sun)}
+.btn.play{background:var(--leaf);color:#fff;min-width:150px}
+.btn.ghost{box-shadow:none}
+.dots{display:flex;justify-content:center;gap:8px}
+.dots span{width:12px;height:12px;border-radius:50%;background:var(--line)}
+.dots span.done{background:var(--ink-soft)}
+.dots span.on{background:var(--blue);transform:scale(1.35)}
+
+/* game */
+.gcard{background:var(--paper);border:3px solid var(--ink);border-radius:22px;padding:clamp(16px,3vw,28px);display:flex;flex-direction:column;gap:16px;align-items:center;text-align:center}
+.gtop{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.gtop b{font-family:var(--f-display);font-size:1.45rem}
+.gnum{font-weight:700;color:var(--ink-soft);font-variant-numeric:tabular-nums;font-size:1.1rem}
+.gbody{width:100%;display:flex;flex-direction:column;gap:16px;align-items:center}
+.qpic{font-size:clamp(3.6rem,10vw,6rem);line-height:1.1}
+.qtext{display:flex;align-items:center;gap:12px;justify-content:center;font-family:var(--f-display);font-weight:700;font-size:clamp(1.5rem,3vw,2.2rem);line-height:1.4;text-wrap:balance}
+.opts{width:100%;max-width:700px;display:flex;flex-direction:column;gap:12px}
+.optrow{display:flex;align-items:center;gap:10px}
+.optrow .sayb{background:var(--t2)}
+.opt{flex:1;min-width:0;min-height:76px;border:3px solid var(--ink);border-radius:18px;background:var(--paper);font-family:var(--f-display);font-weight:700;font-size:clamp(1.3rem,2.6vw,1.75rem);line-height:1.45;padding:10px 18px;box-shadow:0 4px 0 var(--ink)}
+.opt.right,.ocard.picked,.vbtn.right{background:var(--t3);border-color:var(--leaf)}
+.opt.wrong,.vbtn.wrong{background:#FBD9D3;border-color:var(--coral);animation:shake .4s}
+.ocards{width:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+.owrap{position:relative;display:flex}
+.ocard{flex:1;position:relative;min-height:120px;border:3px solid var(--ink);border-radius:18px;background:var(--paper);font-family:var(--f-display);font-weight:700;font-size:clamp(1.25rem,2.4vw,1.6rem);line-height:1.45;padding:14px 14px 14px 14px;box-shadow:0 4px 0 var(--ink)}
+.ocard.wrong{animation:shake .4s;border-color:var(--coral)}
+.ocard .badge{position:absolute;top:-14px;left:-10px;width:40px;height:40px;border-radius:50%;background:var(--leaf);color:#fff;display:grid;place-items:center;font-family:var(--f-body);font-size:1.2rem;border:3px solid var(--ink)}
+.owrap .sayb{position:absolute;top:-16px;right:-8px;width:46px;height:46px;font-size:1.2rem;background:var(--t2);z-index:1}
+.slots{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.slot{min-width:130px;min-height:90px;border:3px dashed var(--ink-soft);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--f-display);font-weight:700;font-size:clamp(1.5rem,3vw,2.1rem);padding:6px 12px;background:transparent}
+.slot small{font-family:var(--f-body);font-size:1rem;color:var(--ink-soft);font-weight:700}
+.slot.filled{border-style:solid;border-color:var(--ink)}
+.tilesrow{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.ptile{min-width:120px;min-height:76px;border:3px solid var(--ink);border-radius:16px;background:var(--paper);font-family:var(--f-display);font-weight:700;font-size:clamp(1.5rem,3vw,2.1rem);box-shadow:0 4px 0 var(--ink);padding:0 16px}
+.ptile.used{visibility:hidden}
+.ptile.wrong{animation:shake .4s;border-color:var(--coral)}
+.vrow{display:flex;align-items:flex-end;gap:10px;justify-content:center;flex-wrap:wrap}
+.vbtn{width:clamp(70px,14vw,104px);border:3px solid var(--ink);border-radius:16px;background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;padding:8px 4px;box-shadow:0 4px 0 var(--ink)}
+.vbtn .vb{width:60%;border-radius:8px}
+.vbtn b{font-size:1.5rem}
+.vbtn span{font-size:1rem;font-weight:700;color:var(--ink-soft)}
+.fb{min-height:2.2em;font-family:var(--f-display);font-weight:700;font-size:clamp(1.35rem,2.6vw,1.85rem)}
+.fb.ok{color:var(--leaf)}.fb.no{color:var(--coral)}
+
+/* result */
+.rstars{font-size:clamp(3.4rem,10vw,5.5rem);letter-spacing:6px}
+.rstars i{display:inline-block;font-style:normal;animation:pop .5s ease-out backwards}
+.rstars i:nth-child(2){animation-delay:.2s}.rstars i:nth-child(3){animation-delay:.4s}
+.rtitle{font-family:var(--f-display);font-size:clamp(1.6rem,3.4vw,2.3rem);font-weight:700;margin:0;line-height:1.4}
+.keys{width:100%;max-width:620px;display:flex;flex-direction:column;gap:10px}
+.key{display:flex;align-items:center;gap:12px;background:var(--sky);border-radius:14px;padding:8px 12px;text-align:left}
+.key span.k{font-family:var(--f-display);font-weight:700;font-size:1.5rem;flex:1;line-height:1.45}
+.key .sayb{background:var(--t2)}
+.selfq{font-weight:700;font-size:1.25rem}
+.selfrow{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.selfb{width:clamp(120px,25vw,160px);min-height:124px;border:3px solid var(--ink);border-radius:20px;background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-weight:700;font-size:1.1rem;box-shadow:0 4px 0 var(--ink)}
+.selfb em{font-style:normal;font-size:2.8rem;line-height:1}
+.selfb.on{background:var(--t2);transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+
+/* record */
+.rec{background:var(--paper);border:3px solid var(--ink);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.rec h2{font-family:var(--f-display);margin:0;font-size:1.8rem}
+.rec p{margin:0;color:var(--ink-soft);font-size:.95rem}
+.tscroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{font-size:.85rem;color:var(--ink-soft);letter-spacing:.05em}
+td small{display:block;color:var(--ink-soft);font-size:.8rem}
+td.num{font-variant-numeric:tabular-nums;text-align:center}
+.recbtns{display:flex;gap:10px;flex-wrap:wrap}
+.btn.warn{background:#FBD9D3}
+
+/* 聲音設定 */
+.modal{position:fixed;inset:0;z-index:50;background:rgba(34,49,74,.55);display:flex;justify-content:center;align-items:flex-start;overflow-y:auto;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.mbox{width:100%;max-width:880px;background:var(--paper);border:3px solid var(--ink);border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.mhead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.mhead h2{margin:0;font-family:var(--f-display);font-size:1.8rem}
+.mopts{display:flex;gap:20px;flex-wrap:wrap}
+.chk{display:inline-flex;align-items:center;gap:10px;font-weight:700;min-height:44px}
+.chk input{width:26px;height:26px;accent-color:var(--blue)}
+.mnote{margin:0;color:var(--ink-soft);font-size:.92rem}
+.vroles{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.vrole{border:2px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.vwho{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-size:1.35rem;font-weight:700}
+.vwho .dot{width:26px;height:26px;border-radius:50%;border:2px solid var(--ink)}
+.vrole label{display:flex;flex-direction:column;gap:4px;font-size:.9rem;font-weight:700;color:var(--ink-soft)}
+.vrole select{min-height:44px;border:2px solid var(--ink);border-radius:10px;padding:0 8px;font:inherit;font-size:.95rem;color:var(--ink);background:var(--paper);width:100%}
+.vrange{display:flex;align-items:center;gap:10px}
+.vrange input{flex:1;min-width:0;height:32px;accent-color:var(--blue)}
+.vrange output{width:3.2em;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink);font-weight:700}
+.vrole .btn{min-height:50px}
+
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes stamp{from{transform:translateX(-50%) scale(1.8);opacity:0}to{transform:translateX(-50%) scale(1);opacity:1}}
+@keyframes popc{from{transform:translateX(-50%) scale(.6);opacity:0}to{transform:translateX(-50%) scale(1);opacity:1}}
+@keyframes talk{from{transform:scaleY(.35)}to{transform:scaleY(1.1)}}
+@keyframes wave{from{transform:rotate(-12deg)}to{transform:rotate(12deg)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+@media (max-width:560px){.btn{padding:0 14px}.btn.play{min-width:120px}.sayb{width:50px;height:50px}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <button class="tbtn" id="back" hidden aria-label="回首頁" data-zy>← 首頁</button>
+    <div class="brand"><span class="mark">💬</span><span data-zy>溝通小勇士</span></div>
+    <button class="tbtn" id="snd" aria-pressed="true">🔊 聲音開</button>
+    <button class="tbtn" id="vBtn">🎙️ 聲音設定</button>
+    <button class="tbtn" id="recBtn">📒 學習紀錄</button>
+  </header>
+
+  <main id="home">
+    <div class="wrap">
+      <div class="hello">
+        <h1 data-zy>今天想練習哪一個？</h1>
+        <p data-zy>先看動畫學說話，再玩遊戲，最後看看自己學會了沒有。</p>
+      </div>
+      <div class="units" id="units"></div>
+    </div>
+  </main>
+
+  <main id="unit" hidden>
+    <div class="wrap">
+      <div class="uhead">
+        <div class="meta"><small id="uWeek"></small><h2 id="uTitle"></h2><p id="uGoal"></p></div>
+        <button class="btn go" id="toGame" data-zy>🎮 玩遊戲</button>
+      </div>
+      <div class="stage-wrap">
+        <div class="stage" id="stage"></div>
+        <div class="cap"><span class="who" data-zy>旁白</span><p id="capText"></p><button class="sayb" id="capSay" aria-label="聽旁白">🔊</button></div>
+        <div class="line" id="line" hidden><span class="who" id="lineWho"></span><p id="lineText"></p><button class="sayb" id="lineSay" aria-label="聽角色說話">🔊</button></div>
+        <div class="ctrl">
+          <button class="btn" id="prev" data-zy>◀ 上一步</button>
+          <button class="btn play" id="play"></button>
+          <button class="btn" id="next" data-zy>下一步 ▶</button>
+        </div>
+        <div class="dots" id="dots"></div>
+      </div>
+    </div>
+  </main>
+
+  <main id="game" hidden>
+    <div class="gcard">
+      <div class="gtop"><b id="gTitle"></b><span class="gnum" id="gNum"></span></div>
+      <div class="gbody" id="gBody"></div>
+      <div class="fb" id="fb" aria-live="polite"></div>
+      <div class="ctrl"><button class="btn ghost" id="toStory" data-zy>🎬 回去看動畫</button><button class="btn go" id="gNext" hidden></button></div>
+    </div>
+  </main>
+
+  <main id="result" hidden>
+    <div class="gcard" id="resBody"></div>
+  </main>
+
+  <main id="record" hidden>
+    <section class="rec">
+      <h2>學習紀錄</h2>
+      <p>給老師看：每個單元的遊戲星星（取最高）、學生自評、按下「我說好了」的開口練習次數。紀錄只存在這台平板的瀏覽器裡，清除瀏覽資料就會不見。</p>
+      <div class="tscroll"><table>
+        <thead><tr><th>單元</th><th>遊戲星星</th><th>學生自評</th><th>開口練習</th><th>遊戲次數</th><th>最近練習</th></tr></thead>
+        <tbody id="recBody"></tbody>
+      </table></div>
+      <div class="recbtns"><button class="btn" id="copyRec">📋 複製紀錄文字</button><button class="btn warn" id="resetRec">清除紀錄</button></div>
+      <p id="recMsg" aria-live="polite"></p>
+    </section>
+  </main>
+</div>
+
+<div class="modal" id="vModal" hidden>
+  <div class="mbox" role="dialog" aria-modal="true" aria-labelledby="vTitle">
+    <div class="mhead"><h2 id="vTitle">聲音設定</h2><button class="btn go" id="vClose">完成</button></div>
+    <div class="mopts">
+      <label class="chk"><input type="checkbox" id="zyOn" checked> 顯示注音</label>
+      <label class="chk"><input type="checkbox" id="allV"> 列出所有語言的聲音</label>
+    </div>
+    <p class="mnote" id="vNote"></p>
+    <div class="vroles" id="vRoles"></div>
+    <div class="recbtns"><button class="btn" id="vReset">恢復預設</button></div>
+  </div>
+</div>
+
+<script>
+/* ---------- 注音資料（由 build.js 產生） ---------- */
+const ZY={"溝通小勇士":"ㄍㄡ ㄊㄨㄥ ㄒㄧㄠˇ ㄩㄥˇ ㄕˋ","平板單頁":"ㄆㄧㄥˊ ㄅㄢˇ ㄉㄢ ㄧㄝˋ","首頁單元卡":"ㄕㄡˇ ㄧㄝˋ ㄉㄢ ㄩㄢˊ ㄎㄚˇ","動畫舞台":"ㄉㄨㄥˋ ㄏㄨㄚˋ ㄨˇ ㄊㄞˊ","旁白":"ㄆㄤˊ ㄅㄞˊ","對話列":"ㄉㄨㄟˋ ㄏㄨㄚˋ ㄌㄧㄝˋ","遊戲卡":"ㄧㄡˊ ㄒㄧˋ ㄎㄚˇ","自評":"ㄗˋ ㄆㄧㄥˊ","刻意採明亮教室單一配色":"ㄎㄜˋ ㄧˋ ㄘㄞˇ ㄇㄧㄥˊ ㄌㄧㄤˋ ㄐㄧㄠˋ ㄕˋ ㄉㄢ ㄧ ㄆㄟˋ ㄙㄜˋ","國字右側直排注音":"ㄍㄨㄛˊ ㄗˋ ㄧㄡˋ ㄘㄜˋ ㄓˊ ㄆㄞˊ ㄓㄨˋ ㄧㄣ","注音":"ㄓㄨˋ ㄧㄣ","國字右側直排":"ㄍㄨㄛˊ ㄗˋ ㄧㄡˋ ㄘㄜˋ ㄓˊ ㄆㄞˊ","聲調在右":"ㄕㄥ ㄉㄧㄠˋ ㄗㄞˋ ㄧㄡˋ","旁白與對話列":"ㄆㄤˊ ㄅㄞˊ ㄩˇ ㄉㄨㄟˋ ㄏㄨㄚˋ ㄌㄧㄝˋ","聲音設定":"ㄕㄥ ㄧㄣ ㄕㄜˋ ㄉㄧㄥˋ","回首頁":"ㄏㄨㄟˊ ㄕㄡˇ ㄧㄝˋ","首頁":"ㄕㄡˇ ㄧㄝˋ","聲音開":"ㄕㄥ ㄧㄣ ㄎㄞ","學習紀錄":"ㄒㄩㄝˊ ㄒㄧˊ ㄐㄧˋ ㄌㄨˋ","今天想練習哪一個":"ㄐㄧㄣ ㄊㄧㄢ ㄒㄧㄤˇ ㄌㄧㄢˋ ㄒㄧˊ ㄋㄚˇ ㄧ ㄍㄜˋ","先看動畫學說話":"ㄒㄧㄢ ㄎㄢˋ ㄉㄨㄥˋ ㄏㄨㄚˋ ㄒㄩㄝˊ ㄕㄨㄛ ㄏㄨㄚˋ","再玩遊戲":"ㄗㄞˋ ㄨㄢˊ ㄧㄡˊ ㄒㄧˋ","最後看看自己學會了沒有":"ㄗㄨㄟˋ ㄏㄡˋ ㄎㄢˋ ˙ㄎㄢ ㄗˋ ㄐㄧˇ ㄒㄩㄝˊ ㄏㄨㄟˋ ˙ㄌㄜ ㄇㄟˊ ㄧㄡˇ","玩遊戲":"ㄨㄢˊ ㄧㄡˊ ㄒㄧˋ","聽旁白":"ㄊㄧㄥ ㄆㄤˊ ㄅㄞˊ","聽角色說話":"ㄊㄧㄥ ㄐㄩㄝˊ ㄙㄜˋ ㄕㄨㄛ ㄏㄨㄚˋ","上一步":"ㄕㄤˋ ㄧ ㄅㄨˋ","下一步":"ㄒㄧㄚˋ ㄧ ㄅㄨˋ","回去看動畫":"ㄏㄨㄟˊ ㄑㄩˋ ㄎㄢˋ ㄉㄨㄥˋ ㄏㄨㄚˋ","給老師看":"ㄍㄟˇ ㄌㄠˇ ㄕ ㄎㄢˋ","每個單元的遊戲星星":"ㄇㄟˇ ㄍㄜˋ ㄉㄢ ㄩㄢˊ ˙ㄉㄜ ㄧㄡˊ ㄒㄧˋ ㄒㄧㄥ ˙ㄒㄧㄥ","取最高":"ㄑㄩˇ ㄗㄨㄟˋ ㄍㄠ","學生自評":"ㄒㄩㄝˊ ㄕㄥ ㄗˋ ㄆㄧㄥˊ","按下":"ㄢˋ ㄒㄧㄚˋ","我說好了":"ㄨㄛˇ ㄕㄨㄛ ㄏㄠˇ ˙ㄌㄜ","的開口練習次數":"˙ㄉㄜ ㄎㄞ ㄎㄡˇ ㄌㄧㄢˋ ㄒㄧˊ ㄘˋ ㄕㄨˋ","紀錄只存在這台平板的瀏覽器裡":"ㄐㄧˋ ㄌㄨˋ ㄓˇ ㄘㄨㄣˊ ㄗㄞˋ ㄓㄜˋ ㄊㄞˊ ㄆㄧㄥˊ ㄅㄢˇ ˙ㄉㄜ ㄌㄧㄡˊ ㄌㄢˇ ㄑㄧˋ ㄌㄧˇ","清除瀏覽資料就會不見":"ㄑㄧㄥ ㄔㄨˊ ㄌㄧㄡˊ ㄌㄢˇ ㄗ ㄌㄧㄠˋ ㄐㄧㄡˋ ㄏㄨㄟˋ ㄅㄨˋ ㄐㄧㄢˋ","單元":"ㄉㄢ ㄩㄢˊ","遊戲星星":"ㄧㄡˊ ㄒㄧˋ ㄒㄧㄥ ˙ㄒㄧㄥ","開口練習":"ㄎㄞ ㄎㄡˇ ㄌㄧㄢˋ ㄒㄧˊ","遊戲次數":"ㄧㄡˊ ㄒㄧˋ ㄘˋ ㄕㄨˋ","最近練習":"ㄗㄨㄟˋ ㄐㄧㄣˋ ㄌㄧㄢˋ ㄒㄧˊ","複製紀錄文字":"ㄈㄨˋ ㄓˋ ㄐㄧˋ ㄌㄨˋ ㄨㄣˊ ㄗˋ","清除紀錄":"ㄑㄧㄥ ㄔㄨˊ ㄐㄧˋ ㄌㄨˋ","完成":"ㄨㄢˊ ㄔㄥˊ","顯示注音":"ㄒㄧㄢˇ ㄕˋ ㄓㄨˋ ㄧㄣ","列出所有語言的聲音":"ㄌㄧㄝˋ ㄔㄨ ㄙㄨㄛˇ ㄧㄡˇ ㄩˇ ㄧㄢˊ ˙ㄉㄜ ㄕㄥ ㄧㄣ","恢復預設":"ㄏㄨㄟ ㄈㄨˋ ㄩˋ ㄕㄜˋ","注音資料":"ㄓㄨˋ ㄧㄣ ㄗ ㄌㄧㄠˋ","由":"ㄧㄡˊ","產生":"ㄔㄢˇ ㄕㄥ","課程資料":"ㄎㄜˋ ㄔㄥˊ ㄗ ㄌㄧㄠˋ","第":"ㄉㄧˋ","週":"ㄓㄡ","特溝":"ㄊㄜˋ ㄍㄡ","我的需要我會說":"ㄨㄛˇ ˙ㄉㄜ ㄒㄩ ㄧㄠˋ ㄨㄛˇ ㄏㄨㄟˋ ㄕㄨㄛ","說出完整的需求句":"ㄕㄨㄛ ㄔㄨ ㄨㄢˊ ㄓㄥˇ ˙ㄉㄜ ㄒㄩ ㄑㄧㄡˊ ㄐㄩˋ","聲音適中":"ㄕㄥ ㄧㄣ ㄕˋ ㄓㄨㄥ","嘴巴張大":"ㄗㄨㄟˇ ˙ㄅㄚ ㄓㄤ ㄉㄚˋ","老師":"ㄌㄠˇ ㄕ","我要喝水":"ㄨㄛˇ ㄧㄠˋ ㄏㄜ ㄕㄨㄟˇ","我要尿尿":"ㄨㄛˇ ㄧㄠˋ ㄋㄧㄠˋ ㄋㄧㄠˋ","上課的時候":"ㄕㄤˋ ㄎㄜˋ ˙ㄉㄜ ㄕˊ ˙ㄏㄡ","小安覺得好渴":"ㄒㄧㄠˇ ㄢ ㄐㄩㄝˊ ˙ㄉㄜ ㄏㄠˇ ㄎㄜˇ","小安小小聲說":"ㄒㄧㄠˇ ㄢ ㄒㄧㄠˇ ㄒㄧㄠˇ ㄕㄥ ㄕㄨㄛ","水":"ㄕㄨㄟˇ","老師聽不清楚":"ㄌㄠˇ ㄕ ㄊㄧㄥ ㄅㄨˋ ㄑㄧㄥ ˙ㄔㄨ","舉起手":"ㄐㄩˇ ㄑㄧˇ ㄕㄡˇ","看著老師":"ㄎㄢˋ ˙ㄓㄜ ㄌㄠˇ ㄕ","說完整的話":"ㄕㄨㄛ ㄨㄢˊ ㄓㄥˇ ˙ㄉㄜ ㄏㄨㄚˋ","老師聽懂了":"ㄌㄠˇ ㄕ ㄊㄧㄥ ㄉㄨㄥˇ ˙ㄌㄜ","好":"ㄏㄠˇ","你去喝水吧":"ㄋㄧˇ ㄑㄩˋ ㄏㄜ ㄕㄨㄟˇ ˙ㄅㄚ","想上廁所的時候":"ㄒㄧㄤˇ ㄕㄤˋ ㄘㄜˋ ㄙㄨㄛˇ ˙ㄉㄜ ㄕˊ ˙ㄏㄡ","也要說出來":"ㄧㄝˇ ㄧㄠˋ ㄕㄨㄛ ㄔㄨ ㄌㄞˊ","換你說說看":"ㄏㄨㄢˋ ㄋㄧˇ ㄕㄨㄛ ˙ㄕㄨㄛ ㄎㄢˋ","聲音不要太小":"ㄕㄥ ㄧㄣ ㄅㄨˋ ㄧㄠˋ ㄊㄞˋ ㄒㄧㄠˇ","選一選":"ㄒㄩㄢˇ ˙ㄧ ㄒㄩㄢˇ","怎麼說最清楚":"ㄗㄣˇ ˙ㄇㄜ ㄕㄨㄛ ㄗㄨㄟˋ ㄑㄧㄥ ˙ㄔㄨ","口渴了":"ㄎㄡˇ ㄎㄜˇ ˙ㄌㄜ","要怎麼跟老師說":"ㄧㄠˋ ㄗㄣˇ ˙ㄇㄜ ㄍㄣ ㄌㄠˇ ㄕ ㄕㄨㄛ","不說話":"ㄅㄨˋ ㄕㄨㄛ ㄏㄨㄚˋ","一直看著老師":"ㄧ ㄓˊ ㄎㄢˋ ˙ㄓㄜ ㄌㄠˇ ㄕ","想上廁所":"ㄒㄧㄤˇ ㄕㄤˋ ㄘㄜˋ ㄙㄨㄛˇ","要怎麼說":"ㄧㄠˋ ㄗㄣˇ ˙ㄇㄜ ㄕㄨㄛ","尿尿":"ㄋㄧㄠˋ ㄋㄧㄠˋ","扭來扭去":"ㄋㄧㄡˇ ㄌㄞˊ ㄋㄧㄡˇ ㄑㄩˋ","跟老師說話":"ㄍㄣ ㄌㄠˇ ㄕ ㄕㄨㄛ ㄏㄨㄚˋ","聲音要怎麼樣":"ㄕㄥ ㄧㄣ ㄧㄠˋ ㄗㄣˇ ˙ㄇㄜ ㄧㄤˋ","不大不小":"ㄅㄨˋ ㄉㄚˋ ㄅㄨˋ ㄒㄧㄠˇ","老師聽得到":"ㄌㄠˇ ㄕ ㄊㄧㄥ ˙ㄉㄜ ㄉㄠˋ","小小聲":"ㄒㄧㄠˇ ㄒㄧㄠˇ ㄕㄥ","像蚊子一樣":"ㄒㄧㄤˋ ㄨㄣˊ ˙ㄗ ㄧ ㄧㄤˋ","用力大叫":"ㄩㄥˋ ㄌㄧˋ ㄉㄚˋ ㄐㄧㄠˋ","說話的時候":"ㄕㄨㄛ ㄏㄨㄚˋ ˙ㄉㄜ ㄕˊ ˙ㄏㄡ","嘴巴要怎麼樣":"ㄗㄨㄟˇ ˙ㄅㄚ ㄧㄠˋ ㄗㄣˇ ˙ㄇㄜ ㄧㄤˋ","張大":"ㄓㄤ ㄉㄚˋ","說清楚":"ㄕㄨㄛ ㄑㄧㄥ ˙ㄔㄨ","閉起來":"ㄅㄧˋ ㄑㄧˇ ㄌㄞˊ","用手摀住":"ㄩㄥˋ ㄕㄡˇ ㄨˇ ㄓㄨˋ","眼睛看哪裡":"ㄧㄢˇ ˙ㄐㄧㄥ ㄎㄢˋ ㄋㄚˇ ㄌㄧˇ","看地板":"ㄎㄢˋ ㄉㄧˋ ㄅㄢˇ","看窗外":"ㄎㄢˋ ㄔㄨㄤ ㄨㄞˋ","求救訊號轉換":"ㄑㄧㄡˊ ㄐㄧㄡˋ ㄒㄩㄣˋ ㄏㄠˋ ㄓㄨㄢˇ ㄏㄨㄢˋ","遇到困難不沉默":"ㄩˋ ㄉㄠˋ ㄎㄨㄣˋ ㄋㄢˊ ㄅㄨˋ ㄔㄣˊ ㄇㄛˋ","用說的請老師或同學幫忙":"ㄩㄥˋ ㄕㄨㄛ ˙ㄉㄜ ㄑㄧㄥˇ ㄌㄠˇ ㄕ ㄏㄨㄛˋ ㄊㄨㄥˊ ㄒㄩㄝˊ ㄅㄤ ㄇㄤˊ","請幫我打開":"ㄑㄧㄥˇ ㄅㄤ ㄨㄛˇ ㄉㄚˇ ㄎㄞ","可以借我彩色筆嗎":"ㄎㄜˇ ㄧˇ ㄐㄧㄝˋ ㄨㄛˇ ㄘㄞˇ ㄙㄜˋ ㄅㄧˇ ˙ㄇㄚ","謝謝你":"ㄒㄧㄝˋ ˙ㄒㄧㄝ ㄋㄧˇ","小安想拿鉛筆":"ㄒㄧㄠˇ ㄢ ㄒㄧㄤˇ ㄋㄚˊ ㄑㄧㄢ ㄅㄧˇ","可是鉛筆盒打不開":"ㄎㄜˇ ㄕˋ ㄑㄧㄢ ㄅㄧˇ ㄏㄜˊ ㄉㄚˇ ㄅㄨˋ ㄎㄞ","小安一直盯著老師看":"ㄒㄧㄠˇ ㄢ ㄧ ㄓˊ ㄉㄧㄥ ˙ㄓㄜ ㄌㄠˇ ㄕ ㄎㄢˋ","老師在忙":"ㄌㄠˇ ㄕ ㄗㄞˋ ㄇㄤˊ","沒有發現":"ㄇㄟˊ ㄧㄡˇ ㄈㄚ ㄒㄧㄢˋ","遇到困難":"ㄩˋ ㄉㄠˋ ㄎㄨㄣˋ ㄋㄢˊ","要用嘴巴說出來":"ㄧㄠˋ ㄩㄥˋ ㄗㄨㄟˇ ˙ㄅㄚ ㄕㄨㄛ ㄔㄨ ㄌㄞˊ","老師馬上來幫忙":"ㄌㄠˇ ㄕ ㄇㄚˇ ㄕㄤˋ ㄌㄞˊ ㄅㄤ ㄇㄤˊ","我來幫你":"ㄨㄛˇ ㄌㄞˊ ㄅㄤ ㄋㄧˇ","畫畫的時候":"ㄏㄨㄚˋ ㄏㄨㄚˋ ˙ㄉㄜ ㄕˊ ˙ㄏㄡ","紅色彩色筆沒水了":"ㄏㄨㄥˊ ㄙㄜˋ ㄘㄞˇ ㄙㄜˋ ㄅㄧˇ ㄇㄟˊ ㄕㄨㄟˇ ˙ㄌㄜ","可以向旁邊的同學借":"ㄎㄜˇ ㄧˇ ㄒㄧㄤˋ ㄆㄤˊ ㄅㄧㄢ ˙ㄉㄜ ㄊㄨㄥˊ ㄒㄩㄝˊ ㄐㄧㄝˋ","可以借我紅色的彩色筆嗎":"ㄎㄜˇ ㄧˇ ㄐㄧㄝˋ ㄨㄛˇ ㄏㄨㄥˊ ㄙㄜˋ ˙ㄉㄜ ㄘㄞˇ ㄙㄜˋ ㄅㄧˇ ˙ㄇㄚ","同學借給你":"ㄊㄨㄥˊ ㄒㄩㄝˊ ㄐㄧㄝˋ ㄍㄟˇ ㄋㄧˇ","記得說謝謝":"ㄐㄧˋ ˙ㄉㄜ ㄕㄨㄛ ㄒㄧㄝˋ ˙ㄒㄧㄝ","怎麼做最好":"ㄗㄣˇ ˙ㄇㄜ ㄗㄨㄛˋ ㄗㄨㄟˋ ㄏㄠˇ","鉛筆盒打不開":"ㄑㄧㄢ ㄅㄧˇ ㄏㄜˊ ㄉㄚˇ ㄅㄨˋ ㄎㄞ","怎麼辦":"ㄗㄣˇ ˙ㄇㄜ ㄅㄢˋ","說":"ㄕㄨㄛ","一直盯著老師看":"ㄧ ㄓˊ ㄉㄧㄥ ˙ㄓㄜ ㄌㄠˇ ㄕ ㄎㄢˋ","生氣":"ㄕㄥ ㄑㄧˋ","把鉛筆盒丟掉":"ㄅㄚˇ ㄑㄧㄢ ㄅㄧˇ ㄏㄜˊ ㄉㄧㄡ ㄉㄧㄠˋ","彩色筆沒水了":"ㄘㄞˇ ㄙㄜˋ ㄅㄧˇ ㄇㄟˊ ㄕㄨㄟˇ ˙ㄌㄜ","搶同學的彩色筆":"ㄑㄧㄤˇ ㄊㄨㄥˊ ㄒㄩㄝˊ ˙ㄉㄜ ㄘㄞˇ ㄙㄜˋ ㄅㄧˇ","不畫了":"ㄅㄨˋ ㄏㄨㄚˋ ˙ㄌㄜ","趴在桌上":"ㄆㄚ ㄗㄞˋ ㄓㄨㄛ ㄕㄤˋ","水壺打不開":"ㄕㄨㄟˇ ㄏㄨˊ ㄉㄚˇ ㄅㄨˋ ㄎㄞ","請幫我打開水壺":"ㄑㄧㄥˇ ㄅㄤ ㄨㄛˇ ㄉㄚˇ ㄎㄞ ㄕㄨㄟˇ ㄏㄨˊ","看著水壺哭":"ㄎㄢˋ ˙ㄓㄜ ㄕㄨㄟˇ ㄏㄨˊ ㄎㄨ","不喝水了":"ㄅㄨˋ ㄏㄜ ㄕㄨㄟˇ ˙ㄌㄜ","鞋帶鬆了":"ㄒㄧㄝˊ ㄉㄞˋ ㄙㄨㄥ ˙ㄌㄜ","自己綁不好":"ㄗˋ ㄐㄧˇ ㄅㄤˇ ㄅㄨˋ ㄏㄠˇ","請幫我綁鞋帶":"ㄑㄧㄥˇ ㄅㄤ ㄨㄛˇ ㄅㄤˇ ㄒㄧㄝˊ ㄉㄞˋ","坐在地上不動":"ㄗㄨㄛˋ ㄗㄞˋ ㄉㄧˋ ㄕㄤˋ ㄅㄨˋ ㄉㄨㄥˋ","同學借你彩色筆":"ㄊㄨㄥˊ ㄒㄩㄝˊ ㄐㄧㄝˋ ㄋㄧˇ ㄘㄞˇ ㄙㄜˋ ㄅㄧˇ","你要說什麼":"ㄋㄧˇ ㄧㄠˋ ㄕㄨㄛ ㄕㄣˊ ˙ㄇㄜ","什麼都不說":"ㄕㄣˊ ˙ㄇㄜ ㄉㄡ ㄅㄨˋ ㄕㄨㄛ","這枝不好看":"ㄓㄜˋ ㄓ ㄅㄨˋ ㄏㄠˇ ㄎㄢˋ","先叫人":"ㄒㄧㄢ ㄐㄧㄠˋ ㄖㄣˊ","再說話":"ㄗㄞˋ ㄕㄨㄛ ㄏㄨㄚˋ","先叫名字":"ㄒㄧㄢ ㄐㄧㄠˋ ㄇㄧㄥˊ ㄗˋ","等對方看我":"ㄉㄥˇ ㄉㄨㄟˋ ㄈㄤ ㄎㄢˋ ㄨㄛˇ","再把話說出來":"ㄗㄞˋ ㄅㄚˇ ㄏㄨㄚˋ ㄕㄨㄛ ㄔㄨ ㄌㄞˊ","等老師看我":"ㄉㄥˇ ㄌㄠˇ ㄕ ㄎㄢˋ ㄨㄛˇ","我寫完了":"ㄨㄛˇ ㄒㄧㄝˇ ㄨㄢˊ ˙ㄌㄜ","小安寫完學習單":"ㄒㄧㄠˇ ㄢ ㄒㄧㄝˇ ㄨㄢˊ ㄒㄩㄝˊ ㄒㄧˊ ㄉㄢ","想告訴老師":"ㄒㄧㄤˇ ㄍㄠˋ ㄙㄨˋ ㄌㄠˇ ㄕ","可是老師正在看別的地方":"ㄎㄜˇ ㄕˋ ㄌㄠˇ ㄕ ㄓㄥˋ ㄗㄞˋ ㄎㄢˋ ㄅㄧㄝˊ ˙ㄉㄜ ㄉㄧˋ ㄈㄤ","沒有先叫老師就說話":"ㄇㄟˊ ㄧㄡˇ ㄒㄧㄢ ㄐㄧㄠˋ ㄌㄠˇ ㄕ ㄐㄧㄡˋ ㄕㄨㄛ ㄏㄨㄚˋ","老師沒有聽到":"ㄌㄠˇ ㄕ ㄇㄟˊ ㄧㄡˇ ㄊㄧㄥ ㄉㄠˋ","第一步":"ㄉㄧˋ ㄧ ㄅㄨˋ","先叫對方的名字":"ㄒㄧㄢ ㄐㄧㄠˋ ㄉㄨㄟˋ ㄈㄤ ˙ㄉㄜ ㄇㄧㄥˊ ㄗˋ","第二步":"ㄉㄧˋ ㄦˋ ㄅㄨˋ","等老師轉過來":"ㄉㄥˇ ㄌㄠˇ ㄕ ㄓㄨㄢˇ ㄍㄨㄛˋ ㄌㄞˊ","看著我":"ㄎㄢˋ ˙ㄓㄜ ㄨㄛˇ","第三步":"ㄉㄧˋ ㄙㄢ ㄅㄨˋ","老師聽到了":"ㄌㄠˇ ㄕ ㄊㄧㄥ ㄉㄠˋ ˙ㄌㄜ","好開心":"ㄏㄠˇ ㄎㄞ ㄒㄧㄣ","好棒":"ㄏㄠˇ ㄅㄤˋ","拿給我看看":"ㄋㄚˊ ㄍㄟˇ ㄨㄛˇ ㄎㄢˋ ˙ㄎㄢ","換你試試看":"ㄏㄨㄢˋ ㄋㄧˇ ㄕˋ ˙ㄕ ㄎㄢˋ","先叫老師":"ㄒㄧㄢ ㄐㄧㄠˋ ㄌㄠˇ ㄕ","等老師看你":"ㄉㄥˇ ㄌㄠˇ ㄕ ㄎㄢˋ ㄋㄧˇ","排一排":"ㄆㄞˊ ˙ㄧ ㄆㄞˊ","說話的順序":"ㄕㄨㄛ ㄏㄨㄚˋ ˙ㄉㄜ ㄕㄨㄣˋ ㄒㄩˋ","叫":"ㄐㄧㄠˋ","等老師看著我":"ㄉㄥˇ ㄌㄠˇ ㄕ ㄎㄢˋ ˙ㄓㄜ ㄨㄛˇ","想找小華一起玩":"ㄒㄧㄤˇ ㄓㄠˇ ㄒㄧㄠˇ ㄏㄨㄚˊ ㄧ ㄑㄧˇ ㄨㄢˊ","小華":"ㄒㄧㄠˇ ㄏㄨㄚˊ","輕拍肩膀":"ㄑㄧㄥ ㄆㄞ ㄐㄧㄢ ㄅㄤˇ","等他轉頭":"ㄉㄥˇ ㄊㄚ ㄓㄨㄢˇ ㄊㄡˊ","我們一起玩好嗎":"ㄨㄛˇ ˙ㄇㄣ ㄧ ㄑㄧˇ ㄨㄢˊ ㄏㄠˇ ˙ㄇㄚ","想告訴媽媽肚子餓了":"ㄒㄧㄤˇ ㄍㄠˋ ㄙㄨˋ ㄇㄚ ˙ㄇㄚ ㄉㄨˋ ˙ㄗ ㄜˋ ˙ㄌㄜ","媽媽":"ㄇㄚ ˙ㄇㄚ","等媽媽看著我":"ㄉㄥˇ ㄇㄚ ˙ㄇㄚ ㄎㄢˋ ˙ㄓㄜ ㄨㄛˇ","我肚子餓了":"ㄨㄛˇ ㄉㄨˋ ˙ㄗ ㄜˋ ˙ㄌㄜ","我想一起玩":"ㄨㄛˇ ㄒㄧㄤˇ ㄧ ㄑㄧˇ ㄨㄢˊ","說出想參加的意思":"ㄕㄨㄛ ㄔㄨ ㄒㄧㄤˇ ㄘㄢ ㄐㄧㄚ ˙ㄉㄜ ㄧˋ ˙ㄙ","玩的時候會輪流":"ㄨㄢˊ ˙ㄉㄜ ㄕˊ ˙ㄏㄡ ㄏㄨㄟˋ ㄌㄨㄣˊ ㄌㄧㄡˊ","我可以一起玩嗎":"ㄨㄛˇ ㄎㄜˇ ㄧˇ ㄧ ㄑㄧˇ ㄨㄢˊ ˙ㄇㄚ","換我了":"ㄏㄨㄢˋ ㄨㄛˇ ˙ㄌㄜ","我等你":"ㄨㄛˇ ㄉㄥˇ ㄋㄧˇ","下課了":"ㄒㄧㄚˋ ㄎㄜˋ ˙ㄌㄜ","小華在玩球":"ㄒㄧㄠˇ ㄏㄨㄚˊ ㄗㄞˋ ㄨㄢˊ ㄑㄧㄡˊ","小安也好想玩":"ㄒㄧㄠˇ ㄢ ㄧㄝˇ ㄏㄠˇ ㄒㄧㄤˇ ㄨㄢˊ","小安站在旁邊一直看":"ㄒㄧㄠˇ ㄢ ㄓㄢˋ ㄗㄞˋ ㄆㄤˊ ㄅㄧㄢ ㄧ ㄓˊ ㄎㄢˋ","小華不知道他想玩":"ㄒㄧㄠˇ ㄏㄨㄚˊ ㄅㄨˋ ㄓ ㄉㄠˋ ㄊㄚ ㄒㄧㄤˇ ㄨㄢˊ","走過去":"ㄗㄡˇ ㄍㄨㄛˋ ㄑㄩˋ","看著小華":"ㄎㄢˋ ˙ㄓㄜ ㄒㄧㄠˇ ㄏㄨㄚˊ","說出來":"ㄕㄨㄛ ㄔㄨ ㄌㄞˊ","小華答應了":"ㄒㄧㄠˇ ㄏㄨㄚˊ ㄉㄚ ˙ㄧㄥ ˙ㄌㄜ","好啊":"ㄏㄠˇ ˙ㄚ","我們一起玩":"ㄨㄛˇ ˙ㄇㄣ ㄧ ㄑㄧˇ ㄨㄢˊ","玩的時候要輪流":"ㄨㄢˊ ˙ㄉㄜ ㄕˊ ˙ㄏㄡ ㄧㄠˋ ㄌㄨㄣˊ ㄌㄧㄡˊ","輪到自己":"ㄌㄨㄣˊ ㄉㄠˋ ㄗˋ ㄐㄧˇ","就說":"ㄐㄧㄡˋ ㄕㄨㄛ","同學還沒好的時候":"ㄊㄨㄥˊ ㄒㄩㄝˊ ㄏㄞˊ ㄇㄟˊ ㄏㄠˇ ˙ㄉㄜ ㄕˊ ˙ㄏㄡ","等一下喔":"ㄉㄥˇ ㄧ ㄒㄧㄚˋ ˙ㄛ","耐心等一下":"ㄋㄞˋ ㄒㄧㄣ ㄉㄥˇ ㄧ ㄒㄧㄚˋ","下課時間":"ㄒㄧㄚˋ ㄎㄜˋ ㄕˊ ㄐㄧㄢ","怎麼說":"ㄗㄣˇ ˙ㄇㄜ ㄕㄨㄛ","同學在玩球":"ㄊㄨㄥˊ ㄒㄩㄝˊ ㄗㄞˋ ㄨㄢˊ ㄑㄧㄡˊ","你也想玩":"ㄋㄧˇ ㄧㄝˇ ㄒㄧㄤˇ ㄨㄢˊ","把球搶過來":"ㄅㄚˇ ㄑㄧㄡˊ ㄑㄧㄤˇ ㄍㄨㄛˋ ㄌㄞˊ","站在旁邊一直看":"ㄓㄢˋ ㄗㄞˋ ㄆㄤˊ ㄅㄧㄢ ㄧ ㄓˊ ㄎㄢˋ","輪到你了":"ㄌㄨㄣˊ ㄉㄠˋ ㄋㄧˇ ˙ㄌㄜ","一直等":"ㄧ ㄓˊ ㄉㄥˇ","把骰子全部拿走":"ㄅㄚˇ ㄊㄡˊ ˙ㄗ ㄑㄩㄢˊ ㄅㄨˋ ㄋㄚˊ ㄗㄡˇ","同學說":"ㄊㄨㄥˊ ㄒㄩㄝˊ ㄕㄨㄛ","生氣大叫":"ㄕㄥ ㄑㄧˋ ㄉㄚˋ ㄐㄧㄠˋ","推同學":"ㄊㄨㄟ ㄊㄨㄥˊ ㄒㄩㄝˊ","你想找同學一起玩積木":"ㄋㄧˇ ㄒㄧㄤˇ ㄓㄠˇ ㄊㄨㄥˊ ㄒㄩㄝˊ ㄧ ㄑㄧˇ ㄨㄢˊ ㄐㄧ ㄇㄨˋ","你要跟我一起玩積木嗎":"ㄋㄧˇ ㄧㄠˋ ㄍㄣ ㄨㄛˇ ㄧ ㄑㄧˇ ㄨㄢˊ ㄐㄧ ㄇㄨˋ ˙ㄇㄚ","自己玩":"ㄗˋ ㄐㄧˇ ㄨㄢˊ","不理同學":"ㄅㄨˋ ㄌㄧˇ ㄊㄨㄥˊ ㄒㄩㄝˊ","把積木藏起來":"ㄅㄚˇ ㄐㄧ ㄇㄨˋ ㄘㄤˊ ㄑㄧˇ ㄌㄞˊ","玩完了":"ㄨㄢˊ ㄨㄢˊ ˙ㄌㄜ","要跟同學說什麼":"ㄧㄠˋ ㄍㄣ ㄊㄨㄥˊ ㄒㄩㄝˊ ㄕㄨㄛ ㄕㄣˊ ˙ㄇㄜ","謝謝你陪我玩":"ㄒㄧㄝˋ ˙ㄒㄧㄝ ㄋㄧˇ ㄆㄟˊ ㄨㄛˇ ㄨㄢˊ","直接跑走":"ㄓˊ ㄐㄧㄝ ㄆㄠˇ ㄗㄡˇ","我不要跟你玩了":"ㄨㄛˇ ㄅㄨˋ ㄧㄠˋ ㄍㄣ ㄋㄧˇ ㄨㄢˊ ˙ㄌㄜ","動作變說話":"ㄉㄨㄥˋ ㄗㄨㄛˋ ㄅㄧㄢˋ ㄕㄨㄛ ㄏㄨㄚˋ","把手指":"ㄅㄚˇ ㄕㄡˇ ㄓˇ","搖頭":"ㄧㄠˊ ㄊㄡˊ","拉手這些動作":"ㄌㄚ ㄕㄡˇ ㄓㄜˋ ㄒㄧㄝ ㄉㄨㄥˋ ㄗㄨㄛˋ","改成用說的":"ㄍㄞˇ ㄔㄥˊ ㄩㄥˋ ㄕㄨㄛ ˙ㄉㄜ","我要那顆球":"ㄨㄛˇ ㄧㄠˋ ㄋㄚˋ ㄎㄜ ㄑㄧㄡˊ","我不要":"ㄨㄛˇ ㄅㄨˋ ㄧㄠˋ","謝謝":"ㄒㄧㄝˋ ˙ㄒㄧㄝ","請你過來":"ㄑㄧㄥˇ ㄋㄧˇ ㄍㄨㄛˋ ㄌㄞˊ","小安想要那顆球":"ㄒㄧㄠˇ ㄢ ㄒㄧㄤˇ ㄧㄠˋ ㄋㄚˋ ㄎㄜ ㄑㄧㄡˊ","只用手指著":"ㄓˇ ㄩㄥˋ ㄕㄡˇ ㄓˇ ˙ㄓㄜ","老師要用猜的":"ㄌㄠˇ ㄕ ㄧㄠˋ ㄩㄥˋ ㄘㄞ ˙ㄉㄜ","把動作變成說話":"ㄅㄚˇ ㄉㄨㄥˋ ㄗㄨㄛˋ ㄅㄧㄢˋ ㄔㄥˊ ㄕㄨㄛ ㄏㄨㄚˋ","老師馬上就懂":"ㄌㄠˇ ㄕ ㄇㄚˇ ㄕㄤˋ ㄐㄧㄡˋ ㄉㄨㄥˇ","不想吃青菜":"ㄅㄨˋ ㄒㄧㄤˇ ㄔ ㄑㄧㄥ ㄘㄞˋ","把盤子推開":"ㄅㄚˇ ㄆㄢˊ ˙ㄗ ㄊㄨㄟ ㄎㄞ","媽媽會難過":"ㄇㄚ ˙ㄇㄚ ㄏㄨㄟˋ ㄋㄢˊ ㄍㄨㄛˋ","用說的":"ㄩㄥˋ ㄕㄨㄛ ˙ㄉㄜ","有禮貌地拒絕":"ㄧㄡˇ ㄌㄧˇ ㄇㄠˋ ˙ㄉㄜ ㄐㄩˋ ㄐㄩㄝˊ","想請老師過來":"ㄒㄧㄤˇ ㄑㄧㄥˇ ㄌㄠˇ ㄕ ㄍㄨㄛˋ ㄌㄞˊ","不要一直拉老師的手":"ㄅㄨˋ ㄧㄠˋ ㄧ ㄓˊ ㄌㄚ ㄌㄠˇ ㄕ ˙ㄉㄜ ㄕㄡˇ","叫老師":"ㄐㄧㄠˋ ㄌㄠˇ ㄕ","用嘴巴說出來":"ㄩㄥˋ ㄗㄨㄟˇ ˙ㄅㄚ ㄕㄨㄛ ㄔㄨ ㄌㄞˊ","換你把動作變成說話":"ㄏㄨㄢˋ ㄋㄧˇ ㄅㄚˇ ㄉㄨㄥˋ ㄗㄨㄛˋ ㄅㄧㄢˋ ㄔㄥˊ ㄕㄨㄛ ㄏㄨㄚˋ","這個動作":"ㄓㄜˋ ˙ㄍㄜ ㄉㄨㄥˋ ㄗㄨㄛˋ","用手指著餅乾":"ㄩㄥˋ ㄕㄡˇ ㄓˇ ˙ㄓㄜ ㄅㄧㄥˇ ㄍㄢ","想說的是":"ㄒㄧㄤˇ ㄕㄨㄛ ˙ㄉㄜ ㄕˋ","我要餅乾":"ㄨㄛˇ ㄧㄠˋ ㄅㄧㄥˇ ㄍㄢ","我不要餅乾":"ㄨㄛˇ ㄅㄨˋ ㄧㄠˋ ㄅㄧㄥˇ ㄍㄢ","餅乾掉了":"ㄅㄧㄥˇ ㄍㄢ ㄉㄧㄠˋ ˙ㄌㄜ","推開青菜":"ㄊㄨㄟ ㄎㄞ ㄑㄧㄥ ㄘㄞˋ","我還要":"ㄨㄛˇ ㄏㄞˊ ㄧㄠˋ","青菜好好吃":"ㄑㄧㄥ ㄘㄞˋ ㄏㄠˇ ㄏㄠˇ ㄔ","拉老師的手":"ㄌㄚ ㄌㄠˇ ㄕ ˙ㄉㄜ ㄕㄡˇ","老師再見":"ㄌㄠˇ ㄕ ㄗㄞˋ ㄐㄧㄢˋ","早上到學校":"ㄗㄠˇ ㄕㄤˋ ㄉㄠˋ ㄒㄩㄝˊ ㄒㄧㄠˋ","揮揮手":"ㄏㄨㄟ ㄏㄨㄟ ㄕㄡˇ","老師早安":"ㄌㄠˇ ㄕ ㄗㄠˇ ㄢ","我要回家":"ㄨㄛˇ ㄧㄠˋ ㄏㄨㄟˊ ㄐㄧㄚ","上課聽不懂":"ㄕㄤˋ ㄎㄜˋ ㄊㄧㄥ ㄅㄨˋ ㄉㄨㄥˇ","我聽不懂":"ㄨㄛˇ ㄊㄧㄥ ㄅㄨˋ ㄉㄨㄥˇ","我會說完整句":"ㄨㄛˇ ㄏㄨㄟˋ ㄕㄨㄛ ㄨㄢˊ ㄓㄥˇ ㄐㄩˋ","用":"ㄩㄥˋ","誰":"ㄕㄟˊ","做什麼":"ㄗㄨㄛˋ ㄕㄣˊ ˙ㄇㄜ","什麼":"ㄕㄣˊ ˙ㄇㄜ","說出完整的句子":"ㄕㄨㄛ ㄔㄨ ㄨㄢˊ ㄓㄥˇ ˙ㄉㄜ ㄐㄩˋ ˙ㄗ","我要吃餅乾":"ㄨㄛˇ ㄧㄠˋ ㄔ ㄅㄧㄥˇ ㄍㄢ","哥哥在踢球":"ㄍㄜ ˙ㄍㄜ ㄗㄞˋ ㄊㄧ ㄑㄧㄡˊ","我要喝牛奶":"ㄨㄛˇ ㄧㄠˋ ㄏㄜ ㄋㄧㄡˊ ㄋㄞˇ","小安只說":"ㄒㄧㄠˇ ㄢ ㄓˇ ㄕㄨㄛ","餅乾":"ㄅㄧㄥˇ ㄍㄢ","媽媽不知道小安想做什麼":"ㄇㄚ ˙ㄇㄚ ㄅㄨˋ ㄓ ㄉㄠˋ ㄒㄧㄠˇ ㄢ ㄒㄧㄤˇ ㄗㄨㄛˋ ㄕㄣˊ ˙ㄇㄜ","我":"ㄨㄛˇ","要吃":"ㄧㄠˋ ㄔ","這樣說":"ㄓㄜˋ ㄧㄤˋ ㄕㄨㄛ","媽媽就聽懂了":"ㄇㄚ ˙ㄇㄚ ㄐㄧㄡˋ ㄊㄧㄥ ㄉㄨㄥˇ ˙ㄌㄜ","媽媽拿餅乾給小安":"ㄇㄚ ˙ㄇㄚ ㄋㄚˊ ㄅㄧㄥˇ ㄍㄢ ㄍㄟˇ ㄒㄧㄠˇ ㄢ","給你":"ㄍㄟˇ ㄋㄧˇ","看圖說說看":"ㄎㄢˋ ㄊㄨˊ ㄕㄨㄛ ˙ㄕㄨㄛ ㄎㄢˋ","誰在做什麼":"ㄕㄟˊ ㄗㄞˋ ㄗㄨㄛˋ ㄕㄣˊ ˙ㄇㄜ","哥哥":"ㄍㄜ ˙ㄍㄜ","在踢":"ㄗㄞˋ ㄊㄧ","球":"ㄑㄧㄡˊ","把三塊拼起來":"ㄅㄚˇ ㄙㄢ ㄎㄨㄞˋ ㄆㄧㄣ ㄑㄧˇ ㄌㄞˊ","就是完整的話":"ㄐㄧㄡˋ ㄕˋ ㄨㄢˊ ㄓㄥˇ ˙ㄉㄜ ㄏㄨㄚˋ","拼一拼":"ㄆㄧㄣ ˙ㄧ ㄆㄧㄣ","要喝":"ㄧㄠˋ ㄏㄜ","牛奶":"ㄋㄧㄡˊ ㄋㄞˇ","妹妹":"ㄇㄟˋ ˙ㄇㄟ","在看":"ㄗㄞˋ ㄎㄢˋ","書":"ㄕㄨ","爸爸":"ㄅㄚˋ ˙ㄅㄚ","在洗":"ㄗㄞˋ ㄒㄧˇ","碗":"ㄨㄢˇ","聲音大小剛剛好":"ㄕㄥ ㄧㄣ ㄉㄚˋ ㄒㄧㄠˇ ㄍㄤ ㄍㄤ ㄏㄠˇ","認識音量尺":"ㄖㄣˋ ˙ㄕ ㄧㄣ ㄌㄧㄤˋ ㄔˇ","到":"ㄉㄠˋ","依照場合用合適的聲音":"ㄧ ㄓㄠˋ ㄔㄤˇ ㄏㄜˊ ㄩㄥˋ ㄏㄜˊ ㄕˋ ˙ㄉㄜ ㄕㄥ ㄧㄣ","號":"ㄏㄠˋ","悄悄話":"ㄑㄧㄠ ㄑㄧㄠ ㄏㄨㄚˋ","跟人說話":"ㄍㄣ ㄖㄣˊ ㄕㄨㄛ ㄏㄨㄚˋ","大喊":"ㄉㄚˋ ㄏㄢˇ","說話的聲音有大有小":"ㄕㄨㄛ ㄏㄨㄚˋ ˙ㄉㄜ ㄕㄥ ㄧㄣ ㄧㄡˇ ㄉㄚˋ ㄧㄡˇ ㄒㄧㄠˇ","就像一把尺":"ㄐㄧㄡˋ ㄒㄧㄤˋ ㄧ ㄅㄚˇ ㄔˇ","從":"ㄘㄨㄥˊ","號聲音是悄悄話":"ㄏㄠˋ ㄕㄥ ㄧㄣ ㄕˋ ㄑㄧㄠ ㄑㄧㄠ ㄏㄨㄚˋ","在圖書館":"ㄗㄞˋ ㄊㄨˊ ㄕㄨ ㄍㄨㄢˇ","同學睡午覺的時候用":"ㄊㄨㄥˊ ㄒㄩㄝˊ ㄕㄨㄟˋ ㄨˇ ㄐㄧㄠˋ ˙ㄉㄜ ㄕˊ ˙ㄏㄡ ㄩㄥˋ","號聲音剛剛好":"ㄏㄠˋ ㄕㄥ ㄧㄣ ㄍㄤ ㄍㄤ ㄏㄠˇ","上課回答問題":"ㄕㄤˋ ㄎㄜˋ ㄏㄨㄟˊ ㄉㄚˊ ㄨㄣˋ ㄊㄧˊ","號聲音最大":"ㄏㄠˋ ㄕㄥ ㄧㄣ ㄗㄨㄟˋ ㄉㄚˋ","在操場叫遠遠的人":"ㄗㄞˋ ㄘㄠ ㄔㄤˇ ㄐㄧㄠˋ ㄩㄢˇ ㄩㄢˇ ˙ㄉㄜ ㄖㄣˊ","或是危險的時候":"ㄏㄨㄛˋ ㄕˋ ㄨㄟˊ ㄒㄧㄢˇ ˙ㄉㄜ ㄕˊ ˙ㄏㄡ","聲音太小":"ㄕㄥ ㄧㄣ ㄊㄞˋ ㄒㄧㄠˇ","嘴巴沒張開":"ㄗㄨㄟˇ ˙ㄅㄚ ㄇㄟˊ ㄓㄤ ㄎㄞ","老師好":"ㄌㄠˇ ㄕ ㄏㄠˇ","號聲音":"ㄏㄠˋ ㄕㄥ ㄧㄣ","換你用":"ㄏㄨㄢˋ ㄋㄧˇ ㄩㄥˋ","號聲音說說看":"ㄏㄠˋ ㄕㄥ ㄧㄣ ㄕㄨㄛ ˙ㄕㄨㄛ ㄎㄢˋ","要用幾號聲音":"ㄧㄠˋ ㄩㄥˋ ㄐㄧˇ ㄏㄠˋ ㄕㄥ ㄧㄣ","在圖書館看書":"ㄗㄞˋ ㄊㄨˊ ㄕㄨ ㄍㄨㄢˇ ㄎㄢˋ ㄕㄨ","想跟同學說話":"ㄒㄧㄤˇ ㄍㄣ ㄊㄨㄥˊ ㄒㄩㄝˊ ㄕㄨㄛ ㄏㄨㄚˋ","上課時回答老師的問題":"ㄕㄤˋ ㄎㄜˋ ㄕˊ ㄏㄨㄟˊ ㄉㄚˊ ㄌㄠˇ ㄕ ˙ㄉㄜ ㄨㄣˋ ㄊㄧˊ","在操場":"ㄗㄞˋ ㄘㄠ ㄔㄤˇ","叫遠遠的同學":"ㄐㄧㄠˋ ㄩㄢˇ ㄩㄢˇ ˙ㄉㄜ ㄊㄨㄥˊ ㄒㄩㄝˊ","同學在睡午覺":"ㄊㄨㄥˊ ㄒㄩㄝˊ ㄗㄞˋ ㄕㄨㄟˋ ㄨˇ ㄐㄧㄠˋ","你想說話":"ㄋㄧˇ ㄒㄧㄤˇ ㄕㄨㄛ ㄏㄨㄚˋ","跟老師說":"ㄍㄣ ㄌㄠˇ ㄕ ㄕㄨㄛ","看到同學快撞到柱子":"ㄎㄢˋ ㄉㄠˋ ㄊㄨㄥˊ ㄒㄩㄝˊ ㄎㄨㄞˋ ㄓㄨㄤˋ ㄉㄠˋ ㄓㄨˋ ˙ㄗ","小心":"ㄒㄧㄠˇ ㄒㄧㄣ","小聲":"ㄒㄧㄠˇ ㄕㄥ","大聲":"ㄉㄚˋ ㄕㄥ","我會了":"ㄨㄛˇ ㄏㄨㄟˋ ˙ㄌㄜ","有一點會":"ㄧㄡˇ ㄧ ㄉㄧㄢˇ ㄏㄨㄟˋ","還要多練習":"ㄏㄞˊ ㄧㄠˋ ㄉㄨㄛ ㄌㄧㄢˋ ㄒㄧˊ","人物":"ㄖㄣˊ ㄨˋ","小安":"ㄒㄧㄠˇ ㄢ","小工具":"ㄒㄧㄠˇ ㄍㄨㄥ ㄐㄩˋ","顆星":"ㄎㄜ ㄒㄧㄥ","注音排版":"ㄓㄨˋ ㄧㄣ ㄆㄞˊ ㄅㄢˇ","紀錄":"ㄐㄧˋ ㄌㄨˋ","這個瀏覽器不支援朗讀":"ㄓㄜˋ ˙ㄍㄜ ㄌㄧㄡˊ ㄌㄢˇ ㄑㄧˋ ㄅㄨˋ ㄓ ㄩㄢˊ ㄌㄤˇ ㄉㄨˊ","請改用":"ㄑㄧㄥˇ ㄍㄞˇ ㄩㄥˋ","或":"ㄏㄨㄛˋ","找不到中文語音":"ㄓㄠˇ ㄅㄨˋ ㄉㄠˋ ㄓㄨㄥ ㄨㄣˊ ㄩˇ ㄧㄣ","請到平板的":"ㄑㄧㄥˇ ㄉㄠˋ ㄆㄧㄥˊ ㄅㄢˇ ˙ㄉㄜ","設定":"ㄕㄜˋ ㄉㄧㄥˋ","語言":"ㄩˇ ㄧㄢˊ","文字轉語音":"ㄨㄣˊ ㄗˋ ㄓㄨㄢˇ ㄩˇ ㄧㄣ","下載":"ㄒㄧㄚˋ ㄗㄞˋ","中文":"ㄓㄨㄥ ㄨㄣˊ","台灣":"ㄊㄞˊ ㄨㄢ","語音後重新開啟":"ㄩˇ ㄧㄣ ㄏㄡˋ ㄔㄨㄥˊ ㄒㄧㄣ ㄎㄞ ㄑㄧˇ","這台裝置有":"ㄓㄜˋ ㄊㄞˊ ㄓㄨㄤ ㄓˋ ㄧㄡˇ","個中文語音":"ㄍㄜˋ ㄓㄨㄥ ㄨㄣˊ ㄩˇ ㄧㄣ","只有一個語音時":"ㄓˇ ㄧㄡˇ ㄧ ㄍㄜˋ ㄩˇ ㄧㄣ ㄕˊ","可以用":"ㄎㄜˇ ㄧˇ ㄩㄥˋ","音高":"ㄧㄣ ㄍㄠ","讓每個角色聽起來不一樣":"ㄖㄤˋ ㄇㄟˇ ㄍㄜˋ ㄐㄩㄝˊ ㄙㄜˋ ㄊㄧㄥ ㄑㄧˇ ㄌㄞˊ ㄅㄨˋ ㄧ ㄧㄤˋ","部分線上語音不支援調音高":"ㄅㄨˋ ㄈㄣˋ ㄒㄧㄢˋ ㄕㄤˋ ㄩˇ ㄧㄣ ㄅㄨˋ ㄓ ㄩㄢˊ ㄊㄧㄠˊ ㄧㄣ ㄍㄠ","自動選擇":"ㄗˋ ㄉㄨㄥˋ ㄒㄩㄢˇ ㄗㄜˊ","聲音":"ㄕㄥ ㄧㄣ","語速":"ㄩˇ ㄙㄨˋ","試聽":"ㄕˋ ㄊㄧㄥ","畫面切換":"ㄏㄨㄚˋ ㄇㄧㄢˋ ㄑㄧㄝˋ ㄏㄨㄢˋ","聲音關":"ㄕㄥ ㄧㄣ ㄍㄨㄢ","動畫":"ㄉㄨㄥˋ ㄏㄨㄚˋ","目標":"ㄇㄨˋ ㄅㄧㄠ","聽":"ㄊㄧㄥ","這樣很棒":"ㄓㄜˋ ㄧㄤˋ ㄏㄣˇ ㄅㄤˋ","這樣不好":"ㄓㄜˋ ㄧㄤˋ ㄅㄨˋ ㄏㄠˇ","音量尺":"ㄧㄣ ㄌㄧㄤˋ ㄔˇ","大聲說出來":"ㄉㄚˋ ㄕㄥ ㄕㄨㄛ ㄔㄨ ㄌㄞˊ","再聽一次":"ㄗㄞˋ ㄊㄧㄥ ㄧ ㄘˋ","暫停":"ㄓㄢˋ ㄊㄧㄥˊ","播放":"ㄅㄛ ㄈㄤˋ","你說出來了":"ㄋㄧˇ ㄕㄨㄛ ㄔㄨ ㄌㄞˊ ˙ㄌㄜ","去玩遊戲":"ㄑㄩˋ ㄨㄢˊ ㄧㄡˊ ㄒㄧˋ","繼續看":"ㄐㄧˋ ㄒㄩˋ ㄎㄢˋ","再說一次":"ㄗㄞˋ ㄕㄨㄛ ㄧ ㄘˋ","遊戲":"ㄧㄡˊ ㄒㄧˋ","聽題目":"ㄊㄧㄥ ㄊㄧˊ ㄇㄨˋ","題":"ㄊㄧˊ","共":"ㄍㄨㄥˋ","聽這個選項":"ㄊㄧㄥ ㄓㄜˋ ˙ㄍㄜ ㄒㄩㄢˇ ㄒㄧㄤˋ","再想想看喔":"ㄗㄞˋ ㄒㄧㄤˇ ˙ㄒㄧㄤ ㄎㄢˋ ˙ㄛ","照順序點一點":"ㄓㄠˋ ㄕㄨㄣˋ ㄒㄩˋ ㄉㄧㄢˇ ˙ㄧ ㄉㄧㄢˇ","聽這張卡":"ㄊㄧㄥ ㄓㄜˋ ㄓㄤ ㄎㄚˇ","想一想":"ㄒㄧㄤˇ ˙ㄧ ㄒㄧㄤˇ","第一步要做什麼":"ㄉㄧˋ ㄧ ㄅㄨˋ ㄧㄠˋ ㄗㄨㄛˋ ㄕㄣˊ ˙ㄇㄜ","下一步是什麼呢":"ㄒㄧㄚˋ ㄧ ㄅㄨˋ ㄕˋ ㄕㄣˊ ˙ㄇㄜ ˙ㄋㄜ","看圖":"ㄎㄢˋ ㄊㄨˊ","拼出完整的話":"ㄆㄧㄣ ㄔㄨ ㄨㄢˊ ㄓㄥˇ ˙ㄉㄜ ㄏㄨㄚˋ","先找":"ㄒㄧㄢ ㄓㄠˇ","再找":"ㄗㄞˋ ㄓㄠˇ","最後是":"ㄗㄨㄟˋ ㄏㄡˋ ㄕˋ","太大聲了":"ㄊㄞˋ ㄉㄚˋ ㄕㄥ ˙ㄌㄜ","再小聲一點":"ㄗㄞˋ ㄒㄧㄠˇ ㄕㄥ ㄧ ㄉㄧㄢˇ","太小聲了":"ㄊㄞˋ ㄒㄧㄠˇ ㄕㄥ ˙ㄌㄜ","再大聲一點":"ㄗㄞˋ ㄉㄚˋ ㄕㄥ ㄧ ㄉㄧㄢˇ","答對了":"ㄉㄚˊ ㄉㄨㄟˋ ˙ㄌㄜ","好厲害":"ㄏㄠˇ ㄌㄧˋ ˙ㄏㄞ","看我的星星":"ㄎㄢˋ ㄨㄛˇ ˙ㄉㄜ ㄒㄧㄥ ˙ㄒㄧㄥ","下一題":"ㄒㄧㄚˋ ㄧ ㄊㄧˊ","結果與自評":"ㄐㄧㄝˊ ㄍㄨㄛˇ ㄩˇ ㄗˋ ㄆㄧㄥˊ","太棒了":"ㄊㄞˋ ㄅㄤˋ ˙ㄌㄜ","全部第一次就答對":"ㄑㄩㄢˊ ㄅㄨˋ ㄉㄧˋ ㄧ ㄘˋ ㄐㄧㄡˋ ㄉㄚˊ ㄉㄨㄟˋ","很不錯":"ㄏㄣˇ ㄅㄨˋ ㄘㄨㄛˋ","再練習會更好":"ㄗㄞˋ ㄌㄧㄢˋ ㄒㄧˊ ㄏㄨㄟˋ ㄍㄥˋ ㄏㄠˇ","你很努力":"ㄋㄧˇ ㄏㄣˇ ㄋㄨˇ ㄌㄧˋ","我們再練習一次":"ㄨㄛˇ ˙ㄇㄣ ㄗㄞˋ ㄌㄧㄢˋ ㄒㄧˊ ㄧ ㄘˋ","第一次就答對":"ㄉㄧˋ ㄧ ㄘˋ ㄐㄧㄡˋ ㄉㄚˊ ㄉㄨㄟˋ","今天學會說的話":"ㄐㄧㄣ ㄊㄧㄢ ㄒㄩㄝˊ ㄏㄨㄟˋ ㄕㄨㄛ ˙ㄉㄜ ㄏㄨㄚˋ","再大聲說一次":"ㄗㄞˋ ㄉㄚˋ ㄕㄥ ㄕㄨㄛ ㄧ ㄘˋ","聽這句話":"ㄊㄧㄥ ㄓㄜˋ ㄐㄩˋ ㄏㄨㄚˋ","我覺得我自己":"ㄨㄛˇ ㄐㄩㄝˊ ˙ㄉㄜ ㄨㄛˇ ㄗˋ ㄐㄧˇ","再玩一次":"ㄗㄞˋ ㄨㄢˊ ㄧ ㄘˋ","再看動畫":"ㄗㄞˋ ㄎㄢˋ ㄉㄨㄥˋ ㄏㄨㄚˋ","再練習就更棒了":"ㄗㄞˋ ㄌㄧㄢˋ ㄒㄧˊ ㄐㄧㄡˋ ㄍㄥˋ ㄅㄤˋ ˙ㄌㄜ","沒關係":"ㄇㄟˊ ㄍㄨㄢ ˙ㄒㄧ","我們再多練習幾次":"ㄨㄛˇ ˙ㄇㄣ ㄗㄞˋ ㄉㄨㄛ ㄌㄧㄢˋ ㄒㄧˊ ㄐㄧˇ ㄘˋ","你覺得自己學會了嗎":"ㄋㄧˇ ㄐㄩㄝˊ ˙ㄉㄜ ㄗˋ ㄐㄧˇ ㄒㄩㄝˊ ㄏㄨㄟˋ ˙ㄌㄜ ˙ㄇㄚ","星星":"ㄒㄧㄥ ˙ㄒㄧㄥ","未填":"ㄨㄟˋ ㄊㄧㄢˊ","次":"ㄘˋ","最近":"ㄗㄨㄟˋ ㄐㄧㄣˋ","已複製":"ㄧˇ ㄈㄨˋ ㄓˋ","可以貼到":"ㄎㄜˇ ㄧˇ ㄊㄧㄝ ㄉㄠˋ","或聯絡簿":"ㄏㄨㄛˋ ㄌㄧㄢˊ ㄌㄨㄛˋ ㄅㄛˊ","這個瀏覽器不能自動複製":"ㄓㄜˋ ˙ㄍㄜ ㄌㄧㄡˊ ㄌㄢˇ ㄑㄧˋ ㄅㄨˋ ㄋㄥˊ ㄗˋ ㄉㄨㄥˋ ㄈㄨˋ ㄓˋ","請直接選取表格文字":"ㄑㄧㄥˇ ㄓˊ ㄐㄧㄝ ㄒㄩㄢˇ ㄑㄩˇ ㄅㄧㄠˇ ㄍㄜˊ ㄨㄣˊ ㄗˋ","確定要清除":"ㄑㄩㄝˋ ㄉㄧㄥˋ ㄧㄠˋ ㄑㄧㄥ ㄔㄨˊ","再按一次":"ㄗㄞˋ ㄢˋ ㄧ ㄘˋ","紀錄已清除":"ㄐㄧˋ ㄌㄨˋ ㄧˇ ㄑㄧㄥ ㄔㄨˊ","怎麼":"ㄗㄣˇ ˙ㄇㄜ","時候":"ㄕˊ ˙ㄏㄡ","東西":"ㄉㄨㄥ ˙ㄒㄧ","清楚":"ㄑㄧㄥ ˙ㄔㄨ","嘴巴":"ㄗㄨㄟˇ ˙ㄅㄚ","眼睛":"ㄧㄢˇ ˙ㄐㄧㄥ","肚子":"ㄉㄨˋ ˙ㄗ","盤子":"ㄆㄢˊ ˙ㄗ","柱子":"ㄓㄨˋ ˙ㄗ","骰子":"ㄊㄡˊ ˙ㄗ","蚊子":"ㄨㄣˊ ˙ㄗ","桌子":"ㄓㄨㄛ ˙ㄗ","我們":"ㄨㄛˇ ˙ㄇㄣ","覺得":"ㄐㄩㄝˊ ˙ㄉㄜ","厲害":"ㄌㄧˋ ˙ㄏㄞ","答應":"ㄉㄚ ˙ㄧㄥ","故事":"ㄍㄨˋ ˙ㄕ","意思":"ㄧˋ ˙ㄙ","認識":"ㄖㄣˋ ˙ㄕ","喜歡":"ㄒㄧˇ ˙ㄏㄨㄢ","朋友":"ㄆㄥˊ ˙ㄧㄡ","看看":"ㄎㄢˋ ˙ㄎㄢ","說說看":"ㄕㄨㄛ ˙ㄕㄨㄛ ㄎㄢˋ","想想看":"ㄒㄧㄤˇ ˙ㄒㄧㄤ ㄎㄢˋ","試試看":"ㄕˋ ˙ㄕ ㄎㄢˋ","點一點":"ㄉㄧㄢˇ ˙ㄧ ㄉㄧㄢˇ","危險":"ㄨㄟˊ ㄒㄧㄢˇ","午覺":"ㄨˇ ㄐㄧㄠˋ","答對":"ㄉㄚˊ ㄉㄨㄟˋ","回答":"ㄏㄨㄟˊ ㄉㄚˊ","告訴":"ㄍㄠˋ ㄙㄨˋ","學習":"ㄒㄩㄝˊ ㄒㄧˊ","練習":"ㄌㄧㄢˋ ㄒㄧˊ","還要":"ㄏㄞˊ ㄧㄠˋ","還沒":"ㄏㄞˊ ㄇㄟˊ","一直":"ㄧ ㄓˊ","一起":"ㄧ ㄑㄧˇ","一下":"ㄧ ㄒㄧㄚˋ","只":"ㄓˇ","暫":"ㄓㄢˋ","聽得到":"ㄊㄧㄥ ˙ㄉㄜ ㄉㄠˋ","部分":"ㄅㄨˋ ㄈㄣˋ","關係":"ㄍㄨㄢ ˙ㄒㄧ","貌地":"ㄇㄠˋ ˙ㄉㄜ"};
+const ZYC={"溝":"ㄍㄡ","通":"ㄊㄨㄥ","小":"ㄒㄧㄠˇ","勇":"ㄩㄥˇ","士":"ㄕˋ","平":"ㄆㄧㄥˊ","板":"ㄅㄢˇ","單":"ㄉㄢ","頁":"ㄧㄝˋ","首":"ㄕㄡˇ","元":"ㄩㄢˊ","卡":"ㄎㄚˇ","動":"ㄉㄨㄥˋ","畫":"ㄏㄨㄚˋ","舞":"ㄨˇ","台":"ㄊㄞˊ","旁":"ㄆㄤˊ","白":"ㄅㄞˊ","對":"ㄉㄨㄟˋ","話":"ㄏㄨㄚˋ","列":"ㄌㄧㄝˋ","遊":"ㄧㄡˊ","戲":"ㄒㄧˋ","自":"ㄗˋ","評":"ㄆㄧㄥˊ","刻":"ㄎㄜˋ","意":"ㄧˋ","採":"ㄘㄞˇ","明":"ㄇㄧㄥˊ","亮":"ㄌㄧㄤˋ","教":"ㄐㄧㄠˋ","室":"ㄕˋ","一":"ㄧ","配":"ㄆㄟˋ","色":"ㄙㄜˋ","國":"ㄍㄨㄛˊ","字":"ㄗˋ","右":"ㄧㄡˋ","側":"ㄘㄜˋ","直":"ㄓˊ","排":"ㄆㄞˊ","注":"ㄓㄨˋ","音":"ㄧㄣ","聲":"ㄕㄥ","調":"ㄊㄧㄠˊ","在":"ㄗㄞˋ","與":"ㄩˇ","設":"ㄕㄜˋ","定":"ㄉㄧㄥˋ","回":"ㄏㄨㄟˊ","開":"ㄎㄞ","學":"ㄒㄩㄝˊ","習":"ㄒㄧˊ","紀":"ㄐㄧˋ","錄":"ㄌㄨˋ","今":"ㄐㄧㄣ","天":"ㄊㄧㄢ","想":"ㄒㄧㄤˇ","練":"ㄌㄧㄢˋ","哪":"ㄋㄚˇ","個":"ㄍㄜˋ","先":"ㄒㄧㄢ","看":"ㄎㄢˋ","說":"ㄕㄨㄛ","再":"ㄗㄞˋ","玩":"ㄨㄢˊ","最":"ㄗㄨㄟˋ","後":"ㄏㄡˋ","己":"ㄐㄧˇ","會":"ㄏㄨㄟˋ","了":"˙ㄌㄜ","沒":"ㄇㄟˊ","有":"ㄧㄡˇ","聽":"ㄊㄧㄥ","角":"ㄐㄧㄠˇ","上":"ㄕㄤˋ","步":"ㄅㄨˋ","下":"ㄒㄧㄚˋ","去":"ㄑㄩˋ","給":"ㄍㄟˇ","老":"ㄌㄠˇ","師":"ㄕ","每":"ㄇㄟˇ","的":"˙ㄉㄜ","星":"ㄒㄧㄥ","取":"ㄑㄩˇ","高":"ㄍㄠ","生":"ㄕㄥ","按":"ㄢˋ","我":"ㄨㄛˇ","好":"ㄏㄠˇ","口":"ㄎㄡˇ","次":"ㄘˋ","數":"ㄕㄨˋ","只":"ㄓˇ","存":"ㄘㄨㄣˊ","這":"ㄓㄜˋ","瀏":"ㄌㄧㄡˊ","覽":"ㄌㄢˇ","器":"ㄑㄧˋ","裡":"ㄌㄧˇ","清":"ㄑㄧㄥ","除":"ㄔㄨˊ","資":"ㄗ","料":"ㄌㄧㄠˋ","就":"ㄐㄧㄡˋ","不":"ㄅㄨˋ","見":"ㄐㄧㄢˋ","近":"ㄐㄧㄣˋ","複":"ㄈㄨˋ","製":"ㄓˋ","文":"ㄨㄣˊ","完":"ㄨㄢˊ","成":"ㄔㄥˊ","顯":"ㄒㄧㄢˇ","示":"ㄕˋ","出":"ㄔㄨ","所":"ㄙㄨㄛˇ","語":"ㄩˇ","言":"ㄧㄢˊ","恢":"ㄏㄨㄟ","復":"ㄈㄨˋ","預":"ㄩˋ","由":"ㄧㄡˊ","產":"ㄔㄢˇ","課":"ㄎㄜˋ","程":"ㄔㄥˊ","第":"ㄉㄧˋ","週":"ㄓㄡ","特":"ㄊㄜˋ","需":"ㄒㄩ","要":"ㄧㄠˋ","整":"ㄓㄥˇ","求":"ㄑㄧㄡˊ","句":"ㄐㄩˋ","適":"ㄕˋ","中":"ㄓㄨㄥ","嘴":"ㄗㄨㄟˇ","巴":"ㄅㄚ","張":"ㄓㄤ","大":"ㄉㄚˋ","喝":"ㄏㄜ","水":"ㄕㄨㄟˇ","尿":"ㄋㄧㄠˋ","時":"ㄕˊ","候":"ㄏㄡˋ","安":"ㄢ","覺":"ㄐㄩㄝˊ","得":"ㄉㄜˊ","渴":"ㄎㄜˇ","楚":"ㄔㄨˇ","舉":"ㄐㄩˇ","起":"ㄑㄧˇ","手":"ㄕㄡˇ","著":"˙ㄓㄜ","懂":"ㄉㄨㄥˇ","你":"ㄋㄧˇ","吧":"˙ㄅㄚ","廁":"ㄘㄜˋ","也":"ㄧㄝˇ","來":"ㄌㄞˊ","換":"ㄏㄨㄢˋ","太":"ㄊㄞˋ","選":"ㄒㄩㄢˇ","怎":"ㄗㄣˇ","麼":"˙ㄇㄜ","跟":"ㄍㄣ","扭":"ㄋㄧㄡˇ","樣":"ㄧㄤˋ","到":"ㄉㄠˋ","像":"ㄒㄧㄤˋ","蚊":"ㄨㄣˊ","子":"ㄗˇ","用":"ㄩㄥˋ","力":"ㄌㄧˋ","叫":"ㄐㄧㄠˋ","閉":"ㄅㄧˋ","摀":"ㄨˇ","住":"ㄓㄨˋ","眼":"ㄧㄢˇ","睛":"ㄐㄧㄥ","地":"ㄉㄧˋ","窗":"ㄔㄨㄤ","外":"ㄨㄞˋ","救":"ㄐㄧㄡˋ","訊":"ㄒㄩㄣˋ","號":"ㄏㄠˋ","轉":"ㄓㄨㄢˇ","遇":"ㄩˋ","困":"ㄎㄨㄣˋ","難":"ㄋㄢˊ","沉":"ㄔㄣˊ","默":"ㄇㄛˋ","請":"ㄑㄧㄥˇ","或":"ㄏㄨㄛˋ","同":"ㄊㄨㄥˊ","幫":"ㄅㄤ","忙":"ㄇㄤˊ","打":"ㄉㄚˇ","可":"ㄎㄜˇ","以":"ㄧˇ","借":"ㄐㄧㄝˋ","彩":"ㄘㄞˇ","筆":"ㄅㄧˇ","嗎":"˙ㄇㄚ","謝":"ㄒㄧㄝˋ","拿":"ㄋㄚˊ","鉛":"ㄑㄧㄢ","是":"ㄕˋ","盒":"ㄏㄜˊ","盯":"ㄉㄧㄥ","發":"ㄈㄚ","現":"ㄒㄧㄢˋ","馬":"ㄇㄚˇ","紅":"ㄏㄨㄥˊ","向":"ㄒㄧㄤˋ","邊":"ㄅㄧㄢ","記":"ㄐㄧˋ","做":"ㄗㄨㄛˋ","辦":"ㄅㄢˋ","氣":"ㄑㄧˋ","把":"ㄅㄚˇ","丟":"ㄉㄧㄡ","掉":"ㄉㄧㄠˋ","搶":"ㄑㄧㄤˇ","趴":"ㄆㄚ","桌":"ㄓㄨㄛ","壺":"ㄏㄨˊ","哭":"ㄎㄨ","鞋":"ㄒㄧㄝˊ","帶":"ㄉㄞˋ","鬆":"ㄙㄨㄥ","綁":"ㄅㄤˇ","坐":"ㄗㄨㄛˋ","什":"ㄕㄣˊ","都":"ㄉㄡ","枝":"ㄓ","人":"ㄖㄣˊ","名":"ㄇㄧㄥˊ","等":"ㄉㄥˇ","方":"ㄈㄤ","寫":"ㄒㄧㄝˇ","告":"ㄍㄠˋ","訴":"ㄙㄨˋ","正":"ㄓㄥˋ","別":"ㄅㄧㄝˊ","二":"ㄦˋ","過":"ㄍㄨㄛˋ","三":"ㄙㄢ","心":"ㄒㄧㄣ","棒":"ㄅㄤˋ","試":"ㄕˋ","順":"ㄕㄨㄣˋ","序":"ㄒㄩˋ","找":"ㄓㄠˇ","華":"ㄏㄨㄚˊ","輕":"ㄑㄧㄥ","拍":"ㄆㄞ","肩":"ㄐㄧㄢ","膀":"ㄅㄤˇ","他":"ㄊㄚ","頭":"ㄊㄡˊ","們":"˙ㄇㄣ","媽":"ㄇㄚ","肚":"ㄉㄨˋ","餓":"ㄜˋ","參":"ㄘㄢ","加":"ㄐㄧㄚ","思":"ㄙ","輪":"ㄌㄨㄣˊ","流":"ㄌㄧㄡˊ","球":"ㄑㄧㄡˊ","站":"ㄓㄢˋ","知":"ㄓ","道":"ㄉㄠˋ","走":"ㄗㄡˇ","答":"ㄉㄚˊ","應":"ㄧㄥˋ","啊":"˙ㄚ","還":"ㄏㄞˊ","喔":"˙ㄛ","耐":"ㄋㄞˋ","間":"ㄐㄧㄢ","骰":"ㄊㄡˊ","全":"ㄑㄩㄢˊ","部":"ㄅㄨˋ","推":"ㄊㄨㄟ","積":"ㄐㄧ","木":"ㄇㄨˋ","理":"ㄌㄧˇ","藏":"ㄘㄤˊ","陪":"ㄆㄟˊ","接":"ㄐㄧㄝ","跑":"ㄆㄠˇ","作":"ㄗㄨㄛˋ","變":"ㄅㄧㄢˋ","指":"ㄓˇ","搖":"ㄧㄠˊ","拉":"ㄌㄚ","些":"ㄒㄧㄝ","改":"ㄍㄞˇ","那":"ㄋㄚˋ","顆":"ㄎㄜ","猜":"ㄘㄞ","吃":"ㄔ","青":"ㄑㄧㄥ","菜":"ㄘㄞˋ","盤":"ㄆㄢˊ","禮":"ㄌㄧˇ","貌":"ㄇㄠˋ","拒":"ㄐㄩˋ","絕":"ㄐㄩㄝˊ","餅":"ㄅㄧㄥˇ","乾":"ㄍㄢ","早":"ㄗㄠˇ","校":"ㄒㄧㄠˋ","揮":"ㄏㄨㄟ","家":"ㄐㄧㄚ","誰":"ㄕㄟˊ","哥":"ㄍㄜ","踢":"ㄊㄧ","牛":"ㄋㄧㄡˊ","奶":"ㄋㄞˇ","圖":"ㄊㄨˊ","塊":"ㄎㄨㄞˋ","拼":"ㄆㄧㄣ","妹":"ㄇㄟˋ","書":"ㄕㄨ","爸":"ㄅㄚˋ","洗":"ㄒㄧˇ","碗":"ㄨㄢˇ","剛":"ㄍㄤ","認":"ㄖㄣˋ","識":"ㄕˊ","量":"ㄌㄧㄤˊ","尺":"ㄔˇ","依":"ㄧ","照":"ㄓㄠˋ","場":"ㄔㄤˇ","合":"ㄏㄜˊ","悄":"ㄑㄧㄠ","喊":"ㄏㄢˇ","從":"ㄘㄨㄥˊ","館":"ㄍㄨㄢˇ","睡":"ㄕㄨㄟˋ","午":"ㄨˇ","問":"ㄨㄣˋ","題":"ㄊㄧˊ","操":"ㄘㄠ","遠":"ㄩㄢˇ","危":"ㄨㄟ","險":"ㄒㄧㄢˇ","幾":"ㄐㄧˇ","快":"ㄎㄨㄞˋ","撞":"ㄓㄨㄤˋ","柱":"ㄓㄨˋ","點":"ㄉㄧㄢˇ","多":"ㄉㄨㄛ","物":"ㄨˋ","工":"ㄍㄨㄥ","具":"ㄐㄩˋ","版":"ㄅㄢˇ","㐀":"","鿿":"","豈":"","﫿":"","支":"ㄓ","援":"ㄩㄢˊ","朗":"ㄌㄤˇ","讀":"ㄉㄨˊ","載":"ㄗㄞˇ","灣":"ㄨㄢ","重":"ㄓㄨㄥˋ","新":"ㄒㄧㄣ","啟":"ㄑㄧˇ","裝":"ㄓㄨㄤ","置":"ㄓˋ","讓":"ㄖㄤˋ","分":"ㄈㄣ","線":"ㄒㄧㄢˋ","擇":"ㄗㄜˊ","速":"ㄙㄨˋ","面":"ㄇㄧㄢˋ","切":"ㄑㄧㄝˋ","關":"ㄍㄨㄢ","目":"ㄇㄨˋ","標":"ㄅㄧㄠ","很":"ㄏㄣˇ","暫":"ㄓㄢˋ","停":"ㄊㄧㄥˊ","播":"ㄅㄛ","放":"ㄈㄤˋ","繼":"ㄐㄧˋ","續":"ㄒㄩˋ","共":"ㄍㄨㄥˋ","項":"ㄒㄧㄤˋ","呢":"˙ㄋㄜ","厲":"ㄌㄧˋ","害":"ㄏㄞˋ","結":"ㄐㄧㄝˊ","果":"ㄍㄨㄛˇ","錯":"ㄘㄨㄛˋ","更":"ㄍㄥˋ","努":"ㄋㄨˇ","係":"ㄒㄧˋ","未":"ㄨㄟˋ","填":"ㄊㄧㄢˊ","已":"ㄧˇ","貼":"ㄊㄧㄝ","聯":"ㄌㄧㄢˊ","絡":"ㄌㄨㄛˋ","簿":"ㄅㄛˊ","能":"ㄋㄥˊ","表":"ㄅㄧㄠˇ","格":"ㄍㄜˊ","確":"ㄑㄩㄝˋ"};
+
+/* ---------- 課程資料 ---------- */
+const UNITS=[
+{id:'need',week:'第 4 週',code:'特溝 2-sP-2・B-sP-2',title:'我的需要我會說',icon:'🥤',tone:'#2F6FD0',
+ goal:'說出完整的需求句，聲音適中、嘴巴張大',keys:['老師，我要喝水。','老師，我要尿尿。'],
+ story:[
+  {bg:'class',cap:'上課的時候，小安覺得好渴。',L:{p:'kid',f:'worried',think:'🥤'},R:{p:'teacher',f:'happy'}},
+  {bg:'class',cap:'小安小小聲說「水」，老師聽不清楚。',L:{p:'kid',f:'talk'},R:{p:'teacher',f:'confused'},say:{s:'L',t:'水……',quiet:true},mark:'bad'},
+  {bg:'class',cap:'舉起手，看著老師，嘴巴張大，說完整的話。',L:{p:'kid',f:'talk',hand:'✋'},R:{p:'teacher',f:'look'},say:{s:'L',t:'老師，我要喝水。'},mark:'good'},
+  {bg:'class',cap:'老師聽懂了！',L:{p:'kid',f:'happy',prop:'🥤'},R:{p:'teacher',f:'talk'},say:{s:'R',t:'好，你去喝水吧！'}},
+  {bg:'class',cap:'想上廁所的時候，也要說出來。',L:{p:'kid',f:'talk',hand:'✋',think:'🚽'},R:{p:'teacher',f:'look'},say:{s:'L',t:'老師，我要尿尿。'},mark:'good'},
+  {bg:'class',cap:'換你說說看！聲音不要太小，嘴巴張大。',L:{p:'kid',f:'happy'},R:{p:'teacher',f:'happy'},practice:'老師，我要喝水。'}
+ ],
+ game:{type:'choose',title:'選一選：怎麼說最清楚？',rounds:[
+  {pic:'🥤',q:'口渴了，要怎麼跟老師說？',opts:['老師，我要喝水。','水。','不說話，一直看著老師。']},
+  {pic:'🚽',q:'想上廁所，要怎麼說？',opts:['老師，我要尿尿。','尿尿！','扭來扭去，不說話。']},
+  {pic:'🔉',q:'跟老師說話，聲音要怎麼樣？',opts:['不大不小，老師聽得到。','小小聲，像蚊子一樣。','用力大叫。']},
+  {pic:'👄',q:'說話的時候，嘴巴要怎麼樣？',opts:['張大，說清楚。','閉起來。','用手摀住。']},
+  {pic:'👀',q:'說話的時候，眼睛看哪裡？',opts:['看著老師。','看地板。','看窗外。']}
+ ]}},
+
+{id:'help',week:'第 5–6 週',code:'特溝 2-sP-3',title:'求救訊號轉換',icon:'🆘',tone:'#D9577A',
+ goal:'遇到困難不沉默，用說的請老師或同學幫忙',keys:['老師，請幫我打開。','可以借我彩色筆嗎？','謝謝你！'],
+ story:[
+  {bg:'class',cap:'小安想拿鉛筆，可是鉛筆盒打不開。',L:{p:'kid',f:'worried',prop:'✏️'},R:{p:'teacher',f:'happy'}},
+  {bg:'class',cap:'小安一直盯著老師看。老師在忙，沒有發現。',L:{p:'kid',f:'stare',prop:'✏️'},R:{p:'teacher',f:'away'},mark:'bad'},
+  {bg:'class',cap:'遇到困難，要用嘴巴說出來！',L:{p:'kid',f:'talk',prop:'✏️'},R:{p:'teacher',f:'look'},say:{s:'L',t:'老師，請幫我打開。'},mark:'good'},
+  {bg:'class',cap:'老師馬上來幫忙。',L:{p:'kid',f:'happy',prop:'✏️'},R:{p:'teacher',f:'talk'},say:{s:'R',t:'好，我來幫你。'}},
+  {bg:'class',cap:'畫畫的時候，紅色彩色筆沒水了。',L:{p:'kid',f:'worried',prop:'🖍️'},R:{p:'girl',f:'happy'}},
+  {bg:'class',cap:'可以向旁邊的同學借。',L:{p:'kid',f:'talk',prop:'🖍️'},R:{p:'girl',f:'look'},say:{s:'L',t:'可以借我紅色的彩色筆嗎？'},mark:'good'},
+  {bg:'class',cap:'同學借給你，記得說謝謝。',L:{p:'kid',f:'talk'},R:{p:'girl',f:'happy',prop:'🖍️'},say:{s:'L',t:'謝謝你！'}},
+  {bg:'class',cap:'換你說說看！',L:{p:'kid',f:'happy'},R:{p:'teacher',f:'happy'},practice:'老師，請幫我打開。'}
+ ],
+ game:{type:'choose',title:'遇到困難，怎麼做最好？',rounds:[
+  {pic:'✏️',q:'鉛筆盒打不開，怎麼辦？',opts:['說：「老師，請幫我打開。」','一直盯著老師看。','生氣，把鉛筆盒丟掉。']},
+  {pic:'🖍️',q:'彩色筆沒水了，怎麼辦？',opts:['說：「可以借我彩色筆嗎？」','搶同學的彩色筆。','不畫了，趴在桌上。']},
+  {pic:'💧',q:'水壺打不開，怎麼辦？',opts:['說：「老師，請幫我打開水壺。」','看著水壺哭。','不喝水了。']},
+  {pic:'👟',q:'鞋帶鬆了，自己綁不好，怎麼辦？',opts:['說：「老師，請幫我綁鞋帶。」','坐在地上不動。','一直看著老師。']},
+  {pic:'🤝',q:'同學借你彩色筆，你要說什麼？',opts:['謝謝你！','什麼都不說。','這枝不好看。']}
+ ]}},
+
+{id:'call',week:'第 8 週',code:'特溝 3-sP-3',title:'先叫人，再說話',icon:'👋',tone:'#7A5CC9',
+ goal:'先叫名字、等對方看我，再把話說出來',keys:['老師！','等老師看我。','老師，我寫完了。'],
+ story:[
+  {bg:'class',cap:'小安寫完學習單，想告訴老師。可是老師正在看別的地方。',L:{p:'kid',f:'happy',prop:'📝'},R:{p:'teacher',f:'away'}},
+  {bg:'class',cap:'沒有先叫老師就說話，老師沒有聽到。',L:{p:'kid',f:'talk',prop:'📝'},R:{p:'teacher',f:'away'},say:{s:'L',t:'我寫完了。',quiet:true},mark:'bad'},
+  {bg:'class',cap:'第一步：先叫對方的名字。',L:{p:'kid',f:'talk',prop:'📝'},R:{p:'teacher',f:'away'},say:{s:'L',t:'老師！'}},
+  {bg:'class',cap:'第二步：等老師轉過來，看著我。',L:{p:'kid',f:'look',prop:'📝'},R:{p:'teacher',f:'look'}},
+  {bg:'class',cap:'第三步：再把話說出來。',L:{p:'kid',f:'talk',prop:'📝'},R:{p:'teacher',f:'look'},say:{s:'L',t:'老師，我寫完了。'},mark:'good'},
+  {bg:'class',cap:'老師聽到了，好開心！',L:{p:'kid',f:'happy',prop:'📝'},R:{p:'teacher',f:'talk'},say:{s:'R',t:'好棒！拿給我看看。'}},
+  {bg:'class',cap:'換你試試看：先叫老師，等老師看你，再說話。',L:{p:'kid',f:'happy'},R:{p:'teacher',f:'happy'},practice:'老師！……我寫完了。'}
+ ],
+ game:{type:'order',title:'排一排：說話的順序',rounds:[
+  {pic:'👩‍🏫',q:'想告訴老師「我寫完了」',steps:['叫「老師！」','等老師看著我','說「我寫完了。」']},
+  {pic:'🧒',q:'想找小華一起玩',steps:['叫「小華！」','輕拍肩膀，等他轉頭','說「我們一起玩好嗎？」']},
+  {pic:'👩',q:'想告訴媽媽肚子餓了',steps:['叫「媽媽！」','等媽媽看著我','說「我肚子餓了。」']}
+ ]}},
+
+{id:'play',week:'第 9–10 週',code:'特溝 3-sP-1',title:'我想一起玩',icon:'⚽',tone:'#2FA36B',
+ goal:'說出想參加的意思，玩的時候會輪流',keys:['我可以一起玩嗎？','換我了！','好，我等你。'],
+ story:[
+  {bg:'play',cap:'下課了，小華在玩球，小安也好想玩。',L:{p:'kid',f:'worried',think:'⚽'},R:{p:'girl',f:'happy',prop:'⚽'}},
+  {bg:'play',cap:'小安站在旁邊一直看，小華不知道他想玩。',L:{p:'kid',f:'stare'},R:{p:'girl',f:'happy',prop:'⚽'},mark:'bad'},
+  {bg:'play',cap:'走過去，看著小華，說出來！',L:{p:'kid',f:'talk'},R:{p:'girl',f:'look',prop:'⚽'},say:{s:'L',t:'我可以一起玩嗎？'},mark:'good'},
+  {bg:'play',cap:'小華答應了！',L:{p:'kid',f:'happy'},R:{p:'girl',f:'talk',prop:'⚽'},say:{s:'R',t:'好啊！我們一起玩！'}},
+  {bg:'play',cap:'玩的時候要輪流。輪到自己，就說「換我了」。',L:{p:'kid',f:'talk'},R:{p:'girl',f:'happy',prop:'⚽'},say:{s:'L',t:'換我了！'}},
+  {bg:'play',cap:'同學還沒好的時候……',L:{p:'kid',f:'look'},R:{p:'girl',f:'talk',prop:'⚽'},say:{s:'R',t:'等一下喔！'}},
+  {bg:'play',cap:'就說「好，我等你」，耐心等一下。',L:{p:'kid',f:'talk'},R:{p:'girl',f:'happy',prop:'⚽'},say:{s:'L',t:'好，我等你。'},mark:'good'},
+  {bg:'play',cap:'換你說說看！',L:{p:'kid',f:'happy'},R:{p:'girl',f:'happy',prop:'⚽'},practice:'我可以一起玩嗎？'}
+ ],
+ game:{type:'choose',title:'下課時間：怎麼說？',rounds:[
+  {pic:'⚽',q:'同學在玩球，你也想玩。',opts:['我可以一起玩嗎？','把球搶過來。','站在旁邊一直看。']},
+  {pic:'🎲',q:'玩遊戲，輪到你了。',opts:['換我了！','一直等，不說話。','把骰子全部拿走。']},
+  {pic:'⏳',q:'同學說「等一下喔」。',opts:['好，我等你。','生氣大叫。','推同學。']},
+  {pic:'🧱',q:'你想找同學一起玩積木。',opts:['你要跟我一起玩積木嗎？','自己玩，不理同學。','把積木藏起來。']},
+  {pic:'🙌',q:'玩完了，要跟同學說什麼？',opts:['謝謝你陪我玩！','直接跑走。','我不要跟你玩了。']}
+ ]}},
+
+{id:'gesture',week:'第 11–12 週',code:'特溝 A-sP-3',title:'動作變說話',icon:'🙋',tone:'#E58A1F',
+ goal:'把手指、搖頭、拉手這些動作，改成用說的',keys:['老師，我要那顆球。','我不要，謝謝。','老師，請你過來。'],
+ story:[
+  {bg:'class',cap:'小安想要那顆球，只用手指著，老師要用猜的。',L:{p:'kid',f:'stare',hand:'👉'},R:{p:'teacher',f:'confused',prop:'⚽'},mark:'bad'},
+  {bg:'class',cap:'把動作變成說話，老師馬上就懂！',L:{p:'kid',f:'talk',hand:'👉'},R:{p:'teacher',f:'look',prop:'⚽'},say:{s:'L',t:'老師，我要那顆球。'},mark:'good'},
+  {bg:'home',cap:'不想吃青菜，把盤子推開，媽媽會難過。',L:{p:'kid',f:'worried',hand:'🙅'},R:{p:'mom',f:'sad',prop:'🥦'},mark:'bad'},
+  {bg:'home',cap:'用說的，有禮貌地拒絕。',L:{p:'kid',f:'talk'},R:{p:'mom',f:'look',prop:'🥦'},say:{s:'L',t:'我不要，謝謝。'},mark:'good'},
+  {bg:'class',cap:'想請老師過來，不要一直拉老師的手。',L:{p:'kid',f:'stare',hand:'🤚'},R:{p:'teacher',f:'worried'},mark:'bad'},
+  {bg:'class',cap:'叫老師，用嘴巴說出來。',L:{p:'kid',f:'talk'},R:{p:'teacher',f:'happy'},say:{s:'L',t:'老師，請你過來。'},mark:'good'},
+  {bg:'class',cap:'換你把動作變成說話！',L:{p:'kid',f:'happy',hand:'👉'},R:{p:'teacher',f:'happy',prop:'⚽'},practice:'老師，我要那顆球。'}
+ ],
+ game:{type:'choose',title:'這個動作，要怎麼說？',rounds:[
+  {pic:'👉🍪',q:'用手指著餅乾，想說的是……',opts:['我要餅乾。','我不要餅乾。','餅乾掉了。']},
+  {pic:'🙅🥦',q:'搖頭、推開青菜，想說的是……',opts:['我不要，謝謝。','我還要。','青菜好好吃。']},
+  {pic:'🤚👩‍🏫',q:'拉老師的手，想說的是……',opts:['老師，請你過來。','老師再見。','老師，我不要。']},
+  {pic:'👋🏫',q:'早上到學校，揮揮手，想說的是……',opts:['老師早安！','老師再見！','我要回家。']},
+  {pic:'🙋❓',q:'上課聽不懂，舉起手，想說的是……',opts:['老師，我聽不懂。','老師，我寫完了。','老師再見。']}
+ ]}},
+
+{id:'sentence',week:'第 13–14 週',code:'特溝 2-sP-6・B-sP-4',title:'我會說完整句',icon:'🧩',tone:'#1F9BB0',
+ goal:'用「誰＋做什麼＋什麼」說出完整的句子',keys:['媽媽，我要吃餅乾。','哥哥在踢球。','我要喝牛奶。'],
+ story:[
+  {bg:'home',cap:'小安只說「餅乾」，媽媽不知道小安想做什麼。',L:{p:'kid',f:'talk',think:'🍪'},R:{p:'mom',f:'confused'},say:{s:'L',t:'餅乾。'},mark:'bad'},
+  {bg:'home',cap:'說完整的話：「誰」＋「做什麼」＋「什麼」。',L:{p:'kid',f:'look'},R:{p:'mom',f:'happy'},tiles:['我','要吃','餅乾']},
+  {bg:'home',cap:'這樣說，媽媽就聽懂了！',L:{p:'kid',f:'talk'},R:{p:'mom',f:'look'},say:{s:'L',t:'媽媽，我要吃餅乾。'},mark:'good'},
+  {bg:'home',cap:'媽媽拿餅乾給小安。',L:{p:'kid',f:'happy',prop:'🍪'},R:{p:'mom',f:'talk'},say:{s:'R',t:'好，給你。'}},
+  {bg:'play',cap:'看圖說說看：誰在做什麼？',L:{p:'kid',f:'look'},R:{p:'bro',f:'happy',prop:'⚽'},tiles:['哥哥','在踢','球']},
+  {bg:'play',cap:'把三塊拼起來，就是完整的話。',L:{p:'kid',f:'talk'},R:{p:'bro',f:'happy',prop:'⚽'},say:{s:'L',t:'哥哥在踢球。'},mark:'good'},
+  {bg:'home',cap:'換你說說看！',L:{p:'kid',f:'happy',think:'🥛'},R:{p:'mom',f:'happy'},practice:'我要喝牛奶。'}
+ ],
+ game:{type:'build',title:'拼一拼：說完整的話',rounds:[
+  {pic:'🍪',tiles:['我','要吃','餅乾']},
+  {pic:'🥛',tiles:['我','要喝','牛奶']},
+  {pic:'👦⚽',tiles:['哥哥','在踢','球']},
+  {pic:'👧📖',tiles:['妹妹','在看','書']},
+  {pic:'👨🍽️',tiles:['爸爸','在洗','碗']}
+ ]}},
+
+{id:'volume',week:'第 16 週',code:'特溝 2-sP-2・B-sP-2',title:'聲音大小剛剛好',icon:'🔊',tone:'#B5651D',
+ goal:'認識音量尺 1 到 5，依照場合用合適的聲音',keys:['1 號：悄悄話','3 號：跟人說話','5 號：大喊'],
+ story:[
+  {bg:'class',cap:'說話的聲音有大有小，就像一把尺，從 1 到 5。',L:{p:'kid',f:'happy'},R:{p:'teacher',f:'happy'},meter:0},
+  {bg:'class',cap:'1 號聲音是悄悄話：在圖書館、同學睡午覺的時候用。',L:{p:'kid',f:'look'},R:{p:'teacher',f:'happy'},meter:1},
+  {bg:'class',cap:'3 號聲音剛剛好：跟老師說話、上課回答問題。',L:{p:'kid',f:'look'},R:{p:'teacher',f:'happy'},meter:3},
+  {bg:'play',cap:'5 號聲音最大：在操場叫遠遠的人，或是危險的時候。',L:{p:'kid',f:'look'},R:{p:'girl',f:'happy'},meter:5},
+  {bg:'class',cap:'聲音太小、嘴巴沒張開，老師聽不清楚。',L:{p:'kid',f:'talk'},R:{p:'teacher',f:'confused'},say:{s:'L',t:'老師好……',quiet:true},mark:'bad'},
+  {bg:'class',cap:'用 3 號聲音，嘴巴張大，看著老師。',L:{p:'kid',f:'talk'},R:{p:'teacher',f:'happy'},say:{s:'L',t:'老師好！'},mark:'good'},
+  {bg:'class',cap:'換你用 3 號聲音說說看！',L:{p:'kid',f:'happy'},R:{p:'teacher',f:'happy'},practice:'老師好！我要喝水。'}
+ ],
+ game:{type:'volume',title:'要用幾號聲音？',rounds:[
+  {pic:'📚',q:'在圖書館看書，想跟同學說話',a:[1,2]},
+  {pic:'🙋',q:'上課時回答老師的問題',a:[3]},
+  {pic:'🏃',q:'在操場，叫遠遠的同學',a:[4,5]},
+  {pic:'😴',q:'同學在睡午覺，你想說話',a:[1]},
+  {pic:'🥤',q:'跟老師說「我要喝水」',a:[3]},
+  {pic:'⚠️',q:'看到同學快撞到柱子，大喊「小心！」',a:[5]}
+ ]}}
+];
+const VOL=['','悄悄話','小聲','跟人說話','大聲','大喊'];
+const VOLC=['','#7FB3E8','#4FA3C7','#2FA36B','#F2A93B','#E8604F'];
+const SELF={3:{face:'😄',text:'我會了'},2:{face:'🙂',text:'有一點會'},1:{face:'😐',text:'還要多練習'}};
+const SLOTS=['誰','做什麼','什麼'];
+
+/* ---------- 人物 ---------- */
+const PEOPLE={
+  kid:{name:'小安',hair:'#3A2A22',shirt:'#3F7FD9',style:'short'},
+  girl:{name:'小華',hair:'#4A2E1E',shirt:'#9B6FD6',style:'tails'},
+  teacher:{name:'老師',hair:'#2B2020',shirt:'#2A9D8F',style:'bun',glasses:true},
+  mom:{name:'媽媽',hair:'#5A3725',shirt:'#F08A3C',style:'long'},
+  bro:{name:'哥哥',hair:'#2E2420',shirt:'#E0AE14',style:'spiky'}
+};
+function person(p,f,quiet){
+  const P=PEOPLE[p],skin='#F7CFAE',ink='#22314A',sw='stroke="'+ink+'" stroke-width="3.5" stroke-linecap="round" fill="none"';
+  let back='';
+  if(P.style==='tails') back=`<circle cx="25" cy="88" r="15" fill="${P.hair}" stroke="${ink}" stroke-width="3"/><circle cx="115" cy="88" r="15" fill="${P.hair}" stroke="${ink}" stroke-width="3"/>`;
+  if(P.style==='bun') back=`<circle cx="70" cy="30" r="17" fill="${P.hair}" stroke="${ink}" stroke-width="3"/>`;
+  if(P.style==='long') back=`<path d="M24 76 Q24 30 70 30 Q116 30 116 76 L120 152 Q70 162 20 152Z" fill="${P.hair}" stroke="${ink}" stroke-width="3"/>`;
+  const body=`<path d="M20 222 Q22 142 70 132 Q118 142 120 222Z" fill="${P.shirt}" stroke="${ink}" stroke-width="3"/><rect x="61" y="112" width="18" height="24" fill="${skin}"/>`;
+  const head=`<circle cx="70" cy="78" r="43" fill="${skin}" stroke="${ink}" stroke-width="3"/>`;
+  const top=P.style==='spiky'
+    ?`<path d="M27 76 L31 42 L46 54 L54 31 L68 48 L80 27 L90 48 L104 35 L113 76 Q96 56 70 56 Q44 56 27 76Z" fill="${P.hair}"/>`
+    :`<path d="M27 78 Q26 33 70 33 Q114 33 113 78 Q104 55 70 53 Q40 55 27 78Z" fill="${P.hair}"/>`;
+  if(f==='away') return svg(back+body+head+`<circle cx="70" cy="77" r="43" fill="${P.hair}" stroke="${ink}" stroke-width="3"/>`);
+  const eyes=`<circle cx="54" cy="81" r="4.8" fill="${ink}"/><circle cx="86" cy="81" r="4.8" fill="${ink}"/>`;
+  const cheeks=`<circle cx="43" cy="95" r="6" fill="#F59C8C" opacity=".55"/><circle cx="97" cy="95" r="6" fill="#F59C8C" opacity=".55"/>`;
+  const smile=`<path d="M57 97 Q70 111 83 97" ${sw}/>`;
+  const frown=`<path d="M60 105 Q70 97 80 105" ${sw}/>`;
+  const worry=`<path d="M44 70 L60 64" ${sw}/><path d="M96 70 L80 64" ${sw}/>`;
+  let face='';
+  switch(f){
+    case 'happy': face=eyes+cheeks+smile;break;
+    case 'look': face=eyes+`<path d="M62 99 Q70 105 78 99" ${sw}/>`;break;
+    case 'talk': face=eyes+cheeks+`<ellipse class="mouth" cx="70" cy="101" rx="${quiet?5:10}" ry="${quiet?3.5:8}" fill="#9C2F3A" stroke="${ink}" stroke-width="2.5"/>`;break;
+    case 'worried': face=eyes+worry+frown;break;
+    case 'sad': face=eyes+worry+frown+`<path d="M50 89 Q46 97 50 100 Q54 97 50 89Z" fill="#6EC1F0"/>`;break;
+    case 'stare': face=`<circle cx="54" cy="80" r="9.5" fill="#fff" stroke="${ink}" stroke-width="2.5"/><circle cx="58" cy="79" r="4.8" fill="${ink}"/><circle cx="86" cy="80" r="9.5" fill="#fff" stroke="${ink}" stroke-width="2.5"/><circle cx="90" cy="79" r="4.8" fill="${ink}"/><path d="M63 103 L77 103" ${sw}/>`;break;
+    case 'confused': face=eyes+`<path d="M46 68 L60 68" ${sw}/><path d="M80 65 Q88 58 96 63" ${sw}/><path d="M60 103 Q65 99 70 103 Q75 107 80 103" ${sw}/><text x="116" y="42" font-size="34" font-weight="700" fill="${ink}" font-family="sans-serif">?</text>`;break;
+  }
+  if(P.glasses) face+=`<circle cx="54" cy="81" r="11" fill="none" stroke="${ink}" stroke-width="2.5"/><circle cx="86" cy="81" r="11" fill="none" stroke="${ink}" stroke-width="2.5"/><path d="M65 81 L75 81" stroke="${ink}" stroke-width="2.5"/>`;
+  return svg(back+body+head+top+face);
+}
+function svg(inner){return `<svg viewBox="0 0 140 224" aria-hidden="true">${inner}</svg>`}
+
+/* ---------- 小工具 ---------- */
+const $=s=>document.querySelector(s);
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function shuffleIdx(n){let o;do{o=shuffle([...Array(n).keys()]);}while(n>1&&o.every((v,i)=>v===i));return o;}
+function starsHTML(n){return `<span class="stars" aria-label="${n} 顆星">${'<i class="on">★</i>'.repeat(n)}${'<i>★</i>'.repeat(3-n)}</span>`}
+function today(){const d=new Date();return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`}
+function esc(c){return c==='<'?'&lt;':c==='>'?'&gt;':c==='&'?'&amp;':c}
+
+/* ---------- 注音排版 ---------- */
+const HAN_RUN=/[㐀-鿿豈-﫿]+/g, TRAIL=/[，。！？、：；」』）…～]/;
+function seg(run){
+  if(ZY[run])return ZY[run].split(' ');
+  const out=[];let i=0;
+  while(i<run.length){
+    let hit=0;
+    for(let L=Math.min(run.length-i,12);L>=2;L--){const sub=run.substr(i,L);if(ZY[sub]){out.push(...ZY[sub].split(' '));hit=L;break;}}
+    if(hit){i+=hit;continue;}
+    out.push(ZYC[run[i]]||'');i++;
+  }
+  return out;
+}
+function bp(z){
+  if(!z)return '';
+  let neutral=false,tone='';
+  if(z[0]==='˙'){neutral=true;z=z.slice(1);}
+  if('ˊˇˋ'.includes(z[z.length-1])){tone=z[z.length-1];z=z.slice(0,-1);}
+  return `<span class="b" aria-hidden="true"><span class="bs">${neutral?'<i>˙</i>':''}${z}</span>${tone?`<span class="t">${tone}</span>`:''}</span>`;
+}
+function rb(s){
+  s=String(s);
+  const toks=[];let last=0;HAN_RUN.lastIndex=0;let m;
+  while((m=HAN_RUN.exec(s))){
+    for(const c of s.slice(last,m.index))toks.push({c});
+    const zs=seg(m[0]);[...m[0]].forEach((c,k)=>toks.push({c,z:zs[k]||''}));
+    last=m.index+m[0].length;
+  }
+  for(const c of s.slice(last))toks.push({c});
+  let h='';
+  for(let i=0;i<toks.length;i++){
+    const t=toks[i];
+    if(t.z!==undefined){
+      let tail='';
+      while(i+1<toks.length&&toks[i+1].z===undefined&&TRAIL.test(toks[i+1].c)){tail+=toks[++i].c;}
+      h+=`<span class="zc">${t.c}${bp(t.z)}${tail}</span>`;
+    }else h+=esc(t.c);
+  }
+  return h;
+}
+
+/* ---------- 紀錄 ---------- */
+const KEY='comm-hero-v1';
+let store={units:{}};
+try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.units)store=s;}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}}
+function rec(id){return store.units[id]||(store.units[id]={stars:0,self:null,said:0,plays:0,date:null});}
+
+/* ---------- 聲音設定 ---------- */
+const ROLES=[
+  {id:'narr',name:'旁白',color:'#5A6B84',sample:'上課的時候，小安覺得好渴。'},
+  {id:'kid',name:'小安',color:PEOPLE.kid.shirt,sample:'老師，我要喝水。'},
+  {id:'teacher',name:'老師',color:PEOPLE.teacher.shirt,sample:'好，你去喝水吧！'},
+  {id:'girl',name:'小華',color:PEOPLE.girl.shirt,sample:'好啊！我們一起玩！'},
+  {id:'mom',name:'媽媽',color:PEOPLE.mom.shirt,sample:'好，給你。'},
+  {id:'bro',name:'哥哥',color:PEOPLE.bro.shirt,sample:'哥哥在踢球。'}
+];
+const VDEF={narr:{rate:.85,pitch:1},kid:{rate:.9,pitch:1.4},teacher:{rate:.85,pitch:1},girl:{rate:.95,pitch:1.65},mom:{rate:.85,pitch:1.2},bro:{rate:.95,pitch:.75}};
+const AUTO_IDX={narr:0,teacher:0,kid:1,girl:2,mom:3,bro:4};
+const VKEY='comm-hero-voice-v1';
+let vset={zy:true,all:false,roles:{}};
+try{const s=JSON.parse(localStorage.getItem(VKEY));if(s&&s.roles)vset=Object.assign(vset,s);}catch(e){}
+function vsave(){try{localStorage.setItem(VKEY,JSON.stringify(vset));}catch(e){}}
+function cfg(r){return Object.assign({voice:''},VDEF[r]||VDEF.narr,vset.roles[r]||{});}
+
+let soundOn=true,actx=null;
+const hasTTS='speechSynthesis' in window;
+function allVoices(){if(!hasTTS)return [];try{return speechSynthesis.getVoices();}catch(e){return [];}}
+function zhVoices(){
+  const rank=v=>/TW|Hant/i.test(v.lang)?0:/HK|yue/i.test(v.lang)?1:2;
+  return allVoices().filter(v=>/^(zh|cmn|yue)/i.test(v.lang)).sort((a,b)=>rank(a)-rank(b));
+}
+function voiceFor(r){
+  const c=cfg(r),all=allVoices();
+  if(c.voice){const v=all.find(v=>v.voiceURI===c.voice);if(v)return v;}
+  const zh=zhVoices(),tw=zh.filter(v=>/TW|Hant/i.test(v.lang)),pool=tw.length?tw:zh;
+  return pool.length?pool[(AUTO_IDX[r]||0)%pool.length]:null;
+}
+function stopSpeech(){if(hasTTS)try{speechSynthesis.cancel();}catch(e){}}
+function speak(text,role='narr'){
+  const clean=String(text).replace(/[「」（）()]/g,' ').replace(/……/g,'，');
+  return new Promise(res=>{
+    let done=false;const fin=()=>{if(!done){done=true;res();}};
+    const c=cfg(role),est=(700+clean.length*260)/c.rate;
+    if(!soundOn||!hasTTS){setTimeout(fin,est);return;}
+    try{
+      const u=new SpeechSynthesisUtterance(clean),v=voiceFor(role);
+      u.lang=v?v.lang:'zh-TW';if(v)u.voice=v;u.rate=c.rate;u.pitch=c.pitch;
+      u.onend=fin;u.onerror=fin;setTimeout(fin,est*2+1500);
+      if(speechSynthesis.speaking||speechSynthesis.pending){speechSynthesis.cancel();setTimeout(()=>speechSynthesis.speak(u),80);}
+      else speechSynthesis.speak(u);
+    }catch(e){setTimeout(fin,est);}
+  });
+}
+function tone(ok){
+  if(!soundOn)return;
+  try{
+    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    const t=actx.currentTime,notes=ok?[660,880,1175]:[330,262];
+    notes.forEach((fr,i)=>{const o=actx.createOscillator(),g=actx.createGain(),s=t+i*.11;
+      o.type=ok?'sine':'triangle';o.frequency.value=fr;
+      g.gain.setValueAtTime(.0001,s);g.gain.exponentialRampToValueAtTime(.22,s+.02);g.gain.exponentialRampToValueAtTime(.0001,s+.28);
+      o.connect(g).connect(actx.destination);o.start(s);o.stop(s+.3);});
+  }catch(e){}
+}
+
+function renderVoices(){
+  const list=vset.all?allVoices():zhVoices();
+  const n=zhVoices().length;
+  $('#vNote').textContent=!hasTTS?'這個瀏覽器不支援朗讀，請改用 Chrome、Edge 或 Safari。'
+    :n===0?'找不到中文語音。請到平板的「設定 → 語言／文字轉語音」下載「中文（台灣）」語音後重新開啟。'
+    :`這台裝置有 ${n} 個中文語音。只有一個語音時，可以用「音高」讓每個角色聽起來不一樣。部分線上語音不支援調音高。`;
+  $('#vRoles').innerHTML=ROLES.map(r=>{
+    const c=cfg(r.id);
+    const opts=`<option value="">自動選擇</option>`+list.map(v=>`<option value="${v.voiceURI.replace(/"/g,'&quot;')}"${v.voiceURI===c.voice?' selected':''}>${v.name}（${v.lang}）</option>`).join('');
+    return `<div class="vrole"><div class="vwho"><span class="dot" style="background:${r.color}"></span>${r.name}</div>
+      <label>聲音<select id="v-${r.id}-voice" data-r="${r.id}" data-k="voice">${opts}</select></label>
+      <label>語速<span class="vrange"><input type="range" id="v-${r.id}-rate" data-r="${r.id}" data-k="rate" min="0.5" max="1.5" step="0.05" value="${c.rate}"><output>${(+c.rate).toFixed(2)}</output></span></label>
+      <label>音高<span class="vrange"><input type="range" id="v-${r.id}-pitch" data-r="${r.id}" data-k="pitch" min="0.5" max="2" step="0.05" value="${c.pitch}"><output>${(+c.pitch).toFixed(2)}</output></span></label>
+      <button class="btn ghost" data-try="${r.id}">🔊 試聽</button></div>`;
+  }).join('');
+  $('#vRoles').querySelectorAll('[data-k]').forEach(el=>{
+    const upd=()=>{
+      const r=el.dataset.r,k=el.dataset.k;
+      vset.roles[r]=Object.assign({},vset.roles[r]||{},{[k]:k==='voice'?el.value:+el.value});
+      if(el.type==='range')el.nextElementSibling.textContent=(+el.value).toFixed(2);
+      vsave();
+    };
+    el.addEventListener('input',upd);el.addEventListener('change',upd);
+  });
+  $('#vRoles').querySelectorAll('[data-try]').forEach(b=>b.onclick=()=>{const r=ROLES.find(x=>x.id===b.dataset.try);speak(r.sample,r.id);});
+}
+$('#vBtn').onclick=()=>{halt();$('#zyOn').checked=vset.zy;$('#allV').checked=vset.all;renderVoices();$('#vModal').hidden=false;};
+$('#vClose').onclick=()=>{stopSpeech();$('#vModal').hidden=true;};
+$('#vModal').addEventListener('click',e=>{if(e.target.id==='vModal'){stopSpeech();$('#vModal').hidden=true;}});
+$('#zyOn').onchange=e=>{vset.zy=e.target.checked;vsave();applyZy();};
+$('#allV').onchange=e=>{vset.all=e.target.checked;vsave();renderVoices();};
+$('#vReset').onclick=()=>{vset.roles={};vsave();renderVoices();};
+if(hasTTS){try{speechSynthesis.onvoiceschanged=()=>{if(!$('#vModal').hidden)renderVoices();};}catch(e){}}
+function applyZy(){document.body.classList.toggle('nozy',!vset.zy);}
+
+/* ---------- 畫面切換 ---------- */
+function show(id){
+  ['home','unit','game','result','record'].forEach(s=>$('#'+s).hidden=s!==id);
+  $('#back').hidden=id==='home';
+  window.scrollTo(0,0);
+}
+function goHome(){halt();stopSpeech();renderHome();show('home');}
+$('#back').onclick=goHome;
+$('#snd').onclick=()=>{soundOn=!soundOn;const b=$('#snd');b.textContent=soundOn?'🔊 聲音開':'🔇 聲音關';b.classList.toggle('off',!soundOn);b.setAttribute('aria-pressed',soundOn);if(!soundOn)stopSpeech();};
+$('#recBtn').onclick=()=>{halt();stopSpeech();renderRecord();show('record');};
+
+/* ---------- 首頁 ---------- */
+function renderHome(){
+  const g=$('#units');
+  g.innerHTML=UNITS.map((u,i)=>{const r=rec(u.id);return `<button class="ucard" data-i="${i}" style="--tone:${u.tone}">
+    <span class="uicon">${u.icon}</span><span class="uweek">${u.week}</span><span class="utitle">${rb(u.title)}</span><span class="ugoal">${rb(u.goal)}</span>
+    <span class="ustate">${starsHTML(r.stars)}<span class="uself">${r.self?SELF[r.self].face:''}</span></span></button>`;}).join('');
+  g.querySelectorAll('.ucard').forEach(b=>b.onclick=()=>openUnit(+b.dataset.i));
+}
+
+/* ---------- 動畫 ---------- */
+let cur=null;
+function openUnit(i){
+  halt();
+  cur={u:UNITS[i],i:0,playing:false,tok:0};
+  const u=cur.u;
+  $('#uWeek').textContent=u.week+'・'+u.code;$('#uTitle').innerHTML=rb(u.title);$('#uGoal').innerHTML=rb('目標：'+u.goal);
+  show('unit');renderStep();playFrom();
+}
+const roleOf=s=>s.say?s[s.say.s].p:'narr';
+function actor(a,side,s){
+  if(!a)return '';
+  const sp=s.say&&s.say.s===side;
+  let h=`<div class="actor ${side}${sp?' speaker':''}">`;
+  if(sp)h+=`<div class="bubble${s.say.quiet?' quiet':''}"><span class="btxt">${rb(s.say.t)}</span><button class="bsay" aria-label="聽${PEOPLE[a.p].name}說">🔊</button></div>`;
+  if(a.think)h+=`<div class="think">${a.think}</div>`;
+  h+=person(a.p,a.f,sp&&s.say.quiet);
+  if(a.prop)h+=`<div class="prop">${a.prop}</div>`;
+  if(a.hand)h+=`<div class="hand">${a.hand}</div>`;
+  h+=`<div class="name">${rb(PEOPLE[a.p].name)}</div></div>`;
+  return h;
+}
+function scene(s){
+  const bg=s.bg||'class';let h='';
+  if(bg==='class')h+='<div class="win"></div><div class="board"></div>';
+  if(bg==='play')h+='<div class="sun"></div><div class="tree"></div>';
+  if(bg==='home')h+='<div class="win"></div>';
+  h+=actor(s.L,'L',s)+actor(s.R,'R',s);
+  if(s.mark)h+=`<div class="stamp ${s.mark}"><b>${s.mark==='good'?'○':'✕'}</b>${rb(s.mark==='good'?'這樣很棒':'這樣不好')}</div>`;
+  if(s.tiles)h+=`<div class="tiles">${s.tiles.map((t,k)=>`<div class="tile c${k+1}">${rb(t)}<small>${rb(SLOTS[k])}</small></div>`).join('<span class="plus">＋</span>')}</div>`;
+  if(s.meter!=null)h+=`<div class="meter">${[1,2,3,4,5].map(n=>`<div class="bar${s.meter&&n!==s.meter?' dim':''}" style="height:${2+n*2.4}cqw;background:${VOLC[n]}">${n}</div>`).join('')}<span class="mlabel">${rb(s.meter?s.meter+' 號：'+VOL[s.meter]:'音量尺')}</span></div>`;
+  if(s.practice)h+=`<div class="practice"><div class="pcard"><div class="plabel">🗣️ ${rb('換你說說看！大聲說出來')}</div><div class="psent">${rb(s.practice)}</div><div class="prow"><button class="btn ghost" data-act="hear">🔊 ${rb('再聽一次')}</button><button class="btn go" data-act="said">✅ ${rb('我說好了！')}</button></div></div></div>`;
+  return h;
+}
+function sayLine(s){
+  halt();
+  const st=$('#stage'),tok=cur.tok;st.classList.add('talking');
+  speak(s.say.t,roleOf(s)).then(()=>{if(tok===cur.tok)st.classList.remove('talking');});
+}
+function renderStep(){
+  const u=cur.u,s=u.story[cur.i],st=$('#stage');
+  st.className='stage bg-'+(s.bg||'class');
+  st.innerHTML=scene(s);
+  $('#capText').innerHTML=rb(s.cap);
+  const line=$('#line');
+  if(s.say){
+    const P=PEOPLE[roleOf(s)];
+    line.hidden=false;line.style.setProperty('--who',P.shirt);
+    $('#lineWho').innerHTML=rb(P.name);$('#lineText').innerHTML=rb(s.say.t);
+    $('#lineSay').setAttribute('aria-label','聽'+P.name+'說');
+    $('#lineSay').onclick=()=>sayLine(s);
+    st.querySelectorAll('.bsay').forEach(b=>b.onclick=e=>{e.stopPropagation();sayLine(s);});
+  }else line.hidden=true;
+  $('#dots').innerHTML=u.story.map((_,k)=>`<span class="${k===cur.i?'on':k<cur.i?'done':''}"></span>`).join('');
+  $('#prev').disabled=cur.i===0;$('#next').disabled=cur.i===u.story.length-1;
+  if(s.practice){
+    st.querySelector('[data-act=hear]').onclick=()=>{halt();speak(s.practice,'kid');};
+    st.querySelector('[data-act=said]').onclick=said;
+  }
+  updPlay();
+}
+async function narrate(tok){
+  const s=cur.u.story[cur.i];
+  await speak(s.cap,'narr');
+  if(tok!==cur.tok)return;
+  if(s.say){
+    const st=$('#stage');st.classList.add('talking');
+    await speak(s.say.t,roleOf(s));
+    if(tok===cur.tok)st.classList.remove('talking');
+  }else if(s.practice){await speak(s.practice,'kid');}
+}
+async function playFrom(){
+  stopSpeech();
+  const tok=++cur.tok;cur.playing=true;updPlay();
+  while(tok===cur.tok){
+    await narrate(tok);
+    if(tok!==cur.tok)return;
+    const s=cur.u.story[cur.i];
+    if(s.practice||cur.i>=cur.u.story.length-1){cur.playing=false;updPlay();return;}
+    await wait(900);
+    if(tok!==cur.tok)return;
+    cur.i++;renderStep();
+  }
+}
+function halt(){if(cur){cur.tok++;cur.playing=false;}stopSpeech();const st=$('#stage');if(st)st.classList.remove('talking');updPlay();}
+function updPlay(){const b=$('#play');if(b)b.innerHTML=rb(cur&&cur.playing?'⏸ 暫停':'▶ 播放');}
+function go(d){const n=cur.i+d;if(n<0||n>=cur.u.story.length)return;halt();cur.i=n;renderStep();narrate(++cur.tok);}
+function said(){
+  halt();
+  const r=rec(cur.u.id);r.said++;r.date=today();save();tone(true);
+  const pc=$('#stage .pcard'),last=cur.i===cur.u.story.length-1;
+  pc.innerHTML=`<div class="pyay">🎉</div><div class="psent">${rb('好棒！你說出來了！')}</div><div class="prow"><button class="btn go" data-act="next">${last?'🎮 '+rb('去玩遊戲'):rb('繼續看')+' ▶'}</button><button class="btn ghost" data-act="again">${rb('再說一次')}</button></div>`;
+  speak('好棒！你說出來了！','teacher');
+  pc.querySelector('[data-act=next]').onclick=last?openGame:()=>go(1);
+  pc.querySelector('[data-act=again]').onclick=()=>{renderStep();speak(cur.u.story[cur.i].practice,'kid');};
+}
+$('#prev').onclick=()=>go(-1);
+$('#next').onclick=()=>go(1);
+$('#play').onclick=()=>{if(cur.playing){halt();return;}if(cur.i===cur.u.story.length-1){cur.i=0;renderStep();}playFrom();};
+$('#capSay').onclick=()=>{halt();speak(cur.u.story[cur.i].cap,'narr');};
+$('#toGame').onclick=openGame;
+
+/* ---------- 遊戲 ---------- */
+let gm=null;
+function openGame(){halt();gm={u:cur.u,r:0,firstOk:0};show('game');renderRound();}
+$('#toStory').onclick=()=>{stopSpeech();show('unit');cur.i=0;renderStep();playFrom();};
+$('#gNext').onclick=()=>{gm.r++;if(gm.r>=gm.u.game.rounds.length)finish();else renderRound();};
+function feedback(txt,cls){const f=$('#fb');f.innerHTML=txt?rb(txt):'';f.className='fb '+(cls||'');}
+function qline(q){return `<div class="qtext"><span>${rb(q)}</span><button class="sayb sayq" aria-label="聽題目">🔊</button></div>`;}
+function renderRound(){
+  const g=gm.u.game,R=g.rounds[gm.r],box=$('#gBody');
+  gm.missed=false;gm.need=0;gm.locked=false;
+  $('#gTitle').innerHTML=rb(g.title);$('#gNum').innerHTML=rb(`第 ${gm.r+1} 題 / 共 ${g.rounds.length} 題`);
+  $('#gNext').hidden=true;feedback('');
+  let q='';
+  if(g.type==='choose'){
+    q=R.q;
+    const order=shuffleIdx(R.opts.length);
+    box.innerHTML=`<div class="qpic">${R.pic}</div>${qline(q)}<div class="opts">${order.map(k=>`<div class="optrow"><button class="sayb" data-say="${k}" aria-label="聽這個選項">🔊</button><button class="opt" data-k="${k}">${rb(R.opts[k])}</button></div>`).join('')}</div>`;
+    box.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>speak(R.opts[+b.dataset.say],'kid'));
+    box.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      if(gm.locked||b.disabled)return;
+      const k=+b.dataset.k;
+      if(k===0){b.classList.add('right');right(R.opts[0]);}
+      else{b.classList.add('wrong');b.disabled=true;wrong('再想想看喔！');}
+    });
+  }
+  if(g.type==='order'){
+    q='照順序點一點：'+R.q;
+    const order=shuffleIdx(R.steps.length);
+    box.innerHTML=`<div class="qpic">${R.pic}</div>${qline(q)}<div class="ocards">${order.map(k=>`<div class="owrap"><button class="ocard" data-k="${k}">${rb(R.steps[k])}</button><button class="sayb" data-say="${k}" aria-label="聽這張卡">🔊</button></div>`).join('')}</div>`;
+    box.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>speak(R.steps[+b.dataset.say],'kid'));
+    box.querySelectorAll('.ocard').forEach(b=>b.onclick=()=>{
+      if(gm.locked||b.classList.contains('picked'))return;
+      const k=+b.dataset.k;
+      if(k===gm.need){
+        b.classList.add('picked');b.insertAdjacentHTML('beforeend',`<span class="badge">${k+1}</span>`);gm.need++;
+        if(gm.need===R.steps.length)right(R.steps.join('，'));else{tone(true);speak(R.steps[k],'kid');}
+      }else{b.classList.remove('wrong');void b.offsetWidth;b.classList.add('wrong');wrong(gm.need===0?'想一想，第一步要做什麼？':'下一步是什麼呢？');}
+    });
+  }
+  if(g.type==='build'){
+    q='看圖，拼出完整的話';
+    const order=shuffleIdx(R.tiles.length);
+    box.innerHTML=`<div class="qpic">${R.pic}</div>${qline(q)}<div class="slots">${R.tiles.map((_,k)=>`<div class="slot" data-s="${k}" data-c="c${k+1}"><span class="sv">　</span><small>${rb(SLOTS[k])}</small></div>`).join('')}</div><div class="tilesrow">${order.map(k=>`<button class="ptile" data-k="${k}">${rb(R.tiles[k])}</button>`).join('')}</div>`;
+    box.querySelectorAll('.ptile').forEach(b=>b.onclick=()=>{
+      if(gm.locked||b.classList.contains('used'))return;
+      const k=+b.dataset.k;
+      if(R.tiles[k]===R.tiles[gm.need]){
+        const sl=box.querySelector(`.slot[data-s="${gm.need}"]`);sl.querySelector('.sv').innerHTML=rb(R.tiles[k]);sl.classList.add('filled',sl.dataset.c);
+        b.classList.add('used');gm.need++;
+        if(gm.need===R.tiles.length)right(R.tiles.join('')+'。');else{tone(true);speak(R.tiles[k],'kid');}
+      }else{b.classList.remove('wrong');void b.offsetWidth;b.classList.add('wrong');wrong(['先找「誰」','再找「做什麼」','最後是「什麼」'][gm.need]);}
+    });
+  }
+  if(g.type==='volume'){
+    q=R.q+'，要用幾號聲音？';
+    box.innerHTML=`<div class="qpic">${R.pic}</div>${qline(q)}<div class="vrow">${[1,2,3,4,5].map(n=>`<button class="vbtn" data-n="${n}" aria-label="${n} 號 ${VOL[n]}"><span class="vb" style="height:${14+n*14}px;background:${VOLC[n]}"></span><b>${n}</b><span>${rb(VOL[n])}</span></button>`).join('')}</div>`;
+    box.querySelectorAll('.vbtn').forEach(b=>b.onclick=()=>{
+      if(gm.locked||b.disabled)return;
+      const n=+b.dataset.n;
+      if(R.a.includes(n)){b.classList.add('right');right(`${n} 號聲音，${VOL[n]}。`,'teacher');}
+      else{b.classList.add('wrong');b.disabled=true;wrong(n>Math.max(...R.a)?'太大聲了，再小聲一點。':'太小聲了，再大聲一點。');}
+    });
+  }
+  box.querySelector('.sayq').onclick=()=>speak(q,'narr');
+  speak(q,'narr');
+}
+function right(sayText,role='kid'){
+  gm.locked=true;if(!gm.missed)gm.firstOk++;
+  tone(true);feedback(gm.missed?'答對了！':'答對了！好厲害！','ok');
+  speak(sayText,role);
+  const last=gm.r===gm.u.game.rounds.length-1;
+  $('#gNext').innerHTML=last?rb('看我的星星')+' ⭐':rb('下一題')+' →';$('#gNext').hidden=false;
+}
+function wrong(msg){gm.missed=true;tone(false);feedback(msg,'no');speak(msg,'teacher');}
+
+/* ---------- 結果與自評 ---------- */
+function finish(){
+  const u=gm.u,n=u.game.rounds.length,ratio=gm.firstOk/n;
+  const st=ratio===1?3:ratio>=.6?2:1;
+  const r=rec(u.id);r.stars=Math.max(r.stars,st);r.plays++;r.date=today();save();
+  const title=st===3?'太棒了！全部第一次就答對！':st===2?'很不錯！再練習會更好！':'你很努力！我們再練習一次！';
+  const box=$('#resBody');
+  box.innerHTML=`<div class="rstars">${'<i style="color:#F2B01E">★</i>'.repeat(st)}${'<i style="color:#D5DEE6">★</i>'.repeat(3-st)}</div>
+    <p class="rtitle">${rb(title)}</p>
+    <div class="gnum">${rb(`第一次就答對：${gm.firstOk} / ${n} 題`)}</div>
+    <div class="selfq">${rb('今天學會說的話，再大聲說一次：')}</div>
+    <div class="keys">${u.keys.map((k,i)=>`<div class="key"><span class="k">${rb(k)}</span><button class="sayb" data-k="${i}" aria-label="聽這句話">🔊</button></div>`).join('')}</div>
+    <div class="selfq">${rb('我覺得我自己……')}</div>
+    <div class="selfrow">${[3,2,1].map(v=>`<button class="selfb${r.self===v?' on':''}" data-v="${v}"><em>${SELF[v].face}</em>${rb(SELF[v].text)}</button>`).join('')}</div>
+    <div class="ctrl"><button class="btn" id="rAgain">🔁 ${rb('再玩一次')}</button><button class="btn" id="rStory">🎬 ${rb('再看動畫')}</button><button class="btn go" id="rHome">🏠 ${rb('回首頁')}</button></div>`;
+  box.querySelectorAll('.key .sayb').forEach(b=>b.onclick=()=>speak(u.keys[+b.dataset.k],'kid'));
+  box.querySelectorAll('.selfb').forEach(b=>b.onclick=()=>{
+    const v=+b.dataset.v;r.self=v;save();
+    box.querySelectorAll('.selfb').forEach(x=>x.classList.toggle('on',x===b));
+    tone(true);speak(v===3?'我會了！好棒！':v===2?'有一點會，再練習就更棒了！':'沒關係，我們再多練習幾次！','teacher');
+  });
+  $('#rAgain').onclick=openGame;
+  $('#rStory').onclick=()=>{show('unit');cur.i=0;renderStep();playFrom();};
+  $('#rHome').onclick=goHome;
+  show('result');
+  speak(title+'你覺得自己學會了嗎？','teacher');
+}
+
+/* ---------- 學習紀錄 ---------- */
+function renderRecord(){
+  $('#recBody').innerHTML=UNITS.map(u=>{const r=rec(u.id);return `<tr><td><b>${u.title}</b><small>${u.week}・${u.code}</small></td><td>${starsHTML(r.stars)}</td><td>${r.self?SELF[r.self].face+' '+SELF[r.self].text:'—'}</td><td class="num">${r.said}</td><td class="num">${r.plays}</td><td>${r.date||'—'}</td></tr>`;}).join('');
+  $('#recMsg').textContent='';
+}
+$('#copyRec').onclick=()=>{
+  const txt='溝通小勇士 學習紀錄（'+today()+'）\n'+UNITS.map(u=>{const r=rec(u.id);return `${u.week} ${u.title}：星星 ${r.stars}/3，自評 ${r.self?SELF[r.self].text:'未填'}，開口練習 ${r.said} 次，遊戲 ${r.plays} 次，最近 ${r.date||'—'}`;}).join('\n');
+  const done=()=>{$('#recMsg').textContent='已複製，可以貼到 IEP 或聯絡簿。';};
+  try{navigator.clipboard.writeText(txt).then(done,()=>fallbackCopy(txt,done));}catch(e){fallbackCopy(txt,done);}
+};
+function fallbackCopy(txt,done){
+  const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();
+  let ok=false;try{ok=document.execCommand('copy');}catch(e){}
+  ta.remove();if(ok)done();else $('#recMsg').textContent='這個瀏覽器不能自動複製，請直接選取表格文字。';
+}
+let resetArmed=null;
+$('#resetRec').onclick=()=>{
+  const b=$('#resetRec');
+  if(!resetArmed){b.textContent='確定要清除？再按一次';resetArmed=setTimeout(()=>{resetArmed=null;b.textContent='清除紀錄';},4000);return;}
+  clearTimeout(resetArmed);resetArmed=null;b.textContent='清除紀錄';
+  store={units:{}};save();renderRecord();$('#recMsg').textContent='紀錄已清除。';
+};
+
+document.querySelectorAll('[data-zy]').forEach(el=>el.innerHTML=rb(el.textContent));
+applyZy();updPlay();renderHome();
+</script>
+
+</body></html>
